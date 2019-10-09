@@ -35,7 +35,7 @@ LC  "{"
 RC  "}"
 SPACE  " "
 TAB  "\t"|"\v"   //
-LINEBREAK  "\n"|"\r"|"\f"
+LINEBREAK  "\n"|"\r"|"\f" //
 STRUCT  struct
 RETURN  return
 IF  if
