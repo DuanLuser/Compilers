@@ -6,10 +6,13 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "const.h"
+
 typedef struct TreeNode
 {
 	int line;
 	int depth;
+	enum NodeType nodetype;
 	char name[33];
 	char value[33];
 	struct TreeNode* parent;
@@ -22,7 +25,7 @@ typedef struct TreeNode
 bool Error;
 
 TreeNode* root;
-TreeNode* newNode(int line,char name[],char value[]);
+TreeNode* newNode(int line,enum NodeType tp,char name[],char value[]);
 void insertTree(TreeNode* cur,TreeNode* p);
 void computeDepth(TreeNode* node);
 void printTree(TreeNode* node);

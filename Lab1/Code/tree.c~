@@ -4,7 +4,7 @@ TreeNode* newNode(int line,enum NodeType tp,char name[],char value[])
 {
 	TreeNode *newone=(TreeNode*)malloc(sizeof(TreeNode));
 	newone->line=line;
-	newone->nodetype = tp;
+	p->nodetype = tp;
 	strcpy(newone->name,name);
 	strcpy(newone->value,value);
 	newone->parent=NULL;
