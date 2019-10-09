@@ -8,6 +8,7 @@
 		yylloc.first_column=yycolumn; \
 		yylloc.last_column=yycolumn+yyleng-1; \
 		yycolumn+=yyleng;
+	//TAB  LINEBREAK  FLOAT  FLOAT_exp
 %}
 
 %option yylineno
@@ -34,8 +35,8 @@ RB  "]"
 LC  "{"
 RC  "}"
 SPACE  " "
-TAB  "\t"|"\v"   //
-LINEBREAK  "\n"|"\r"|"\f" //
+TAB  "\t"|"\v"  
+LINEBREAK  "\n"|"\r"|"\f" 
 STRUCT  struct
 RETURN  return
 IF  if
@@ -43,7 +44,8 @@ ELSE  else
 WHILE  while
 TYPE  int|float
 INT  [+-]?{integer}
-FLOAT  [+-]?(({integer}\.?)|({integer}?\.{digit}+))f?
+FLOAT  [+-]?(({digit}+\.)|({digit}*\.{digit}+))f?
+FLOAT_exp [+-]?(({digit}+\.)|({digit}*\.{digit}+))[Ee]{INT}
 ID  {letter}({letter}|{digit})*
 
 %%
@@ -72,7 +74,7 @@ ID  {letter}({letter}|{digit})*
 {WHILE}	{ yylval.tree_node=newNode(yylineno,TOKEN_WHILE,"WHILE",yytext); return WHILE; }
 {TYPE}	{ yylval.tree_node=newNode(yylineno,TOKEN_TYPE,"TYPE",yytext); return TYPE; }
 {INT}	{ yylval.tree_node=newNode(yylineno,TOKEN_INT,"INT",yytext); return INT; }
-{FLOAT}	{ yylval.tree_node=newNode(yylineno,TOKEN_FLOAT,"FLOAT",yytext); return FLOAT; }
+{FLOAT}|{FLOAT_exp}	{ yylval.tree_node=newNode(yylineno,TOKEN_FLOAT,"FLOAT",yytext); return FLOAT; }
 {ID}	{ yylval.tree_node=newNode(yylineno,TOKEN_ID,"ID",yytext); return ID; }
 {SPACE}|{TAB}	{}
 {LINEBREAK}	{ yycolumn=1; }

@@ -60,7 +60,7 @@ void printTree(TreeNode* node)
 	{
 		for(int i=0;i<p->depth;i++)
 			printf("  ");
-		if(p->nodetype > TYPE_INDEX)
+		if(p->nodetype >= TYPE_INDEX)
 			printf("%s (%d)\n", p->name,p->line);
 		else if(p->nodetype > TOKEN_TYPE)
 			printf("%s\n", p->name);
@@ -68,6 +68,8 @@ void printTree(TreeNode* node)
 		{
 			if(p->nodetype == TOKEN_INT)
 				printf("%s: %d\n", p->name, atoi(p->value));
+			else if(p->nodetype == TOKEN_FLOAT)
+				printf("%s: %f\n", p->name, atof(p->value));
 			else
 				printf("%s: %s\n", p->name, p->value);
 		}
