@@ -13,8 +13,8 @@ typedef struct TreeNode
 	int line;
 	int depth;
 	enum NodeType nodetype;
-	char name[33];
-	char value[33];
+	char name[33];  // 32+1
+	char value[40]; // 39+1
 	struct TreeNode* parent;
 	struct TreeNode* firstChild;
 	struct TreeNode* next;

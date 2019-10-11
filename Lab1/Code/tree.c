@@ -69,7 +69,7 @@ void printTree(TreeNode* node)
 			if(p->nodetype == TOKEN_INT)
 				printf("%s: %d\n", p->name, atoi(p->value));
 			else if(p->nodetype == TOKEN_FLOAT)
-				printf("%s: %f\n", p->name, atof(p->value));
+				printf("%s: %lf\n", p->name, atof(p->value));
 			else
 				printf("%s: %s\n", p->name, p->value);
 		}

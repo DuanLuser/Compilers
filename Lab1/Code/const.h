@@ -27,4 +27,8 @@ enum NodeType{
 };
 /*the follow TYPE_INDEX used to seperate different way to print tree*/
 #define TYPE_INDEX 27
+
+/*define the length of float--the value range of float is -3.4e38~3.4e38*/
+#define FLOAT_LENGTH 39
+
 #endif 

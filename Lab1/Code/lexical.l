@@ -43,9 +43,9 @@ IF  if
 ELSE  else
 WHILE  while
 TYPE  int|float
-INT  [+-]?{integer}
-FLOAT  [+-]?(({digit}+\.)|({digit}*\.{digit}+))f?
-FLOAT_exp [+-]?(({digit}+\.)|({digit}*\.{digit}+))[Ee]{INT}
+INT  {integer}
+FLOAT  (({digit}+\.)|({digit}*\.{digit}+))f?
+FLOAT_exp (({digit}+\.)|({digit}*\.{digit}+))[Ee][+-]?{integer}
 ID  {letter}({letter}|{digit})*
 
 %%
