@@ -1,5 +1,8 @@
 #include "tree.h"
 
+bool Error;
+TreeNode* root;
+
 TreeNode* newNode(int line,enum NodeType tp,char name[],char value[])
 {
 	TreeNode *newone=(TreeNode*)malloc(sizeof(TreeNode));

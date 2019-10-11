@@ -22,14 +22,14 @@ typedef struct TreeNode
 
 }TreeNode;
 
-bool Error;
+extern bool Error;
 
-TreeNode* root;
-TreeNode* newNode(int line,enum NodeType tp,char name[],char value[]);
-void insertTree(TreeNode* cur,TreeNode* p);
-void computeDepth(TreeNode* node);
-void printTree(TreeNode* node);
-void deleteTree(TreeNode* root);
+extern TreeNode* root;
+extern TreeNode* newNode(int line,enum NodeType tp,char name[],char value[]);
+extern void insertTree(TreeNode* cur,TreeNode* p);
+extern void computeDepth(TreeNode* node);
+extern void printTree(TreeNode* node);
+extern void deleteTree(TreeNode* root);
 
 #endif
 

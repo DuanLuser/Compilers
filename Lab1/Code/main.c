@@ -1,9 +1,7 @@
 #include "tree.h"
 //extern FILE* yyin;
 
-extern bool Error;
 extern int yylineno;
-extern TreeNode* root;
 extern int yyparse();
 extern void yyrestart(FILE*);
 

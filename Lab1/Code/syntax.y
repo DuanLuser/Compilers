@@ -2,8 +2,6 @@
 	#include "lex.yy.c"
 	#include "tree.h"
 
-	extern bool Error;
-	extern TreeNode* root;
 	//extern int yylineno;
 %}
 
