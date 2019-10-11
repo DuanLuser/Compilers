@@ -48,12 +48,12 @@
 %%
 //High-level Definition
 Program	:	ExtDefList 
-				{ $$=newNode(@$.first_line,TYPE_Program,"Program","");
-		 		root=$$;root->depth=0;insertTree(root,$1); }
+			{ $$=newNode(@$.first_line,TYPE_Program,"Program","");
+		 	root=$$;root->depth=0;insertTree(root,$1); }
 	;
 ExtDefList	:	ExtDef ExtDefList 
-					{ $$=newNode(@$.first_line,TYPE_ExtDefList,"ExtDefList","");
-					insertTree($$,$1);insertTree($$,$2); }
+				{ $$=newNode(@$.first_line,TYPE_ExtDefList,"ExtDefList","");
+				insertTree($$,$1);insertTree($$,$2); }
 	|	/*empty*/ { $$=NULL; }
 	;
 ExtDef	:	Specifier ExtDecList SEMI 
@@ -65,11 +65,13 @@ ExtDef	:	Specifier ExtDecList SEMI
 	|	Specifier FunDec CompSt 
 			{ $$=newNode(@$.first_line,TYPE_ExtDef,"ExtDef","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
+	| 	Specifier FunDec error { Error=true; }
+	| 	Specifier error CompSt { Error=true; }
 	|	error SEMI { Error=true; }
 	;
 ExtDecList	:	VarDec 
-					{ $$=newNode(@$.first_line,TYPE_ExtDecList,"ExtDecList","");
-					insertTree($$,$1); }
+				{ $$=newNode(@$.first_line,TYPE_ExtDecList,"ExtDecList","");
+				insertTree($$,$1); }
 	|	VarDec COMMA ExtDecList 
 			{ $$=newNode(@$.first_line,TYPE_ExtDecList,"ExtDecList","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
@@ -77,23 +79,23 @@ ExtDecList	:	VarDec
 
 //Specifiers
 Specifier	:	TYPE 
-					{ $$=newNode(@$.first_line,TYPE_Specifier,"Specifier","");
-					insertTree($$,$1); }
+				{ $$=newNode(@$.first_line,TYPE_Specifier,"Specifier","");
+				insertTree($$,$1); }
 	|	StructSpecifier 
 			{ $$=newNode(@$.first_line,TYPE_Specifier,"Specifier","");
 			insertTree($$,$1); }
 	;
 StructSpecifier	:	STRUCT OptTag LC DefList RC 
-			{ $$=newNode(@$.first_line,TYPE_StructSpecifier,"StructSpecifier","");
-						insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4);insertTree($$,$5); }
+				{ $$=newNode(@$.first_line,TYPE_StructSpecifier,"StructSpecifier","");
+				insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4);insertTree($$,$5); }
 	|	STRUCT Tag 
 			{ $$=newNode(@$.first_line,TYPE_StructSpecifier,"StructSpecifier","");
 			insertTree($$,$1);insertTree($$,$2); }
-	|	error RC { Error=true; }
+	//|	error RC { Error=true; }
 	;
 OptTag	:	ID 
-				{ $$=newNode(@$.first_line,TYPE_OptTag,"OptTag","");
-				insertTree($$,$1); }
+			{ $$=newNode(@$.first_line,TYPE_OptTag,"OptTag","");
+			insertTree($$,$1); }
 	|	/*empty*/ { $$=NULL; }
 	;
 Tag	:	ID 
@@ -103,47 +105,49 @@ Tag	:	ID
 
 //Declarators
 VarDec	:	ID 
-				{ $$=newNode(@$.first_line,TYPE_VarDec,"VarDec","");
-				insertTree($$,$1); }
+			{ $$=newNode(@$.first_line,TYPE_VarDec,"VarDec","");
+			insertTree($$,$1); }
 	|	VarDec LB INT RB 
 			{ $$=newNode(@$.first_line,TYPE_VarDec,"VarDec","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4); }
 	|	error RB { Error=true; }
 	;
 FunDec	:	ID LP VarList RP 
-				{ $$=newNode(@$.first_line,TYPE_FuncDec,"FunDec","");
-				insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4); }
+			{ $$=newNode(@$.first_line,TYPE_FuncDec,"FunDec","");
+			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4); }
 	|	ID LP RP 
 			{ $$=newNode(@$.first_line,TYPE_FuncDec,"FunDec","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
-	|	error RP { Error=true; }
+	|	ID LP error RP { Error=true; }
 	;
 VarList	:	ParamDec COMMA VarList 
-				{ $$=newNode(@$.first_line,TYPE_VarList,"VarList","");
-				insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
+			{ $$=newNode(@$.first_line,TYPE_VarList,"VarList","");
+			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
 	|	ParamDec 
 			{ $$=newNode(@$.first_line,TYPE_VarList,"VarList","");
 			insertTree($$,$1); }
 	;
 ParamDec	:	Specifier VarDec 
-					{ $$=newNode(@$.first_line,TYPE_ParamDec,"ParamDec","");
-					insertTree($$,$1);insertTree($$,$2); }
+				{ $$=newNode(@$.first_line,TYPE_ParamDec,"ParamDec","");
+				insertTree($$,$1);insertTree($$,$2); }
 	;
 
 //Statements
 CompSt	:	LC DefList StmtList RC 
-				{ $$=newNode(@$.first_line,TYPE_CompSt,"CompSt","");
-				insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4); }
-	|	error RC { Error=true; }
+			{ $$=newNode(@$.first_line,TYPE_CompSt,"CompSt","");
+			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4); }
+	//|	error RC { Error=true; }
+	|	LC DefList error RC { Error=true; }
+	| 	LC DefList StmtList error { Error=true; }
 	;
 StmtList	:	Stmt StmtList 
-					{ $$=newNode(@$.first_line,TYPE_StmtList,"StmtList","");
-					insertTree($$,$1);insertTree($$,$2); }
+				{ $$=newNode(@$.first_line,TYPE_StmtList,"StmtList","");
+				insertTree($$,$1);insertTree($$,$2); }
 	|	/*empty*/ { $$=NULL; }
 	;
 Stmt	:	Exp SEMI 
-				{ $$=newNode(@$.first_line,TYPE_Stmt,"Stmt","");
-				insertTree($$,$1);insertTree($$,$2); }
+			{ $$=newNode(@$.first_line,TYPE_Stmt,"Stmt","");
+			insertTree($$,$1);insertTree($$,$2); }
 	|	CompSt 
 			{ $$=newNode(@$.first_line,TYPE_Stmt,"Stmt","");
 			insertTree($$,$1); }
@@ -159,24 +163,26 @@ Stmt	:	Exp SEMI
 	|	WHILE LP Exp RP Stmt
 			{ $$=newNode(@$.first_line,TYPE_Stmt,"Stmt","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4);insertTree($$,$5); }
-	|	error SEMI { Error=true; }
-	|	error RP { Error=true; }
+	//|	error SEMI { Error=true; }
+	//|	error RP { Error=true; }
+	|	Exp error SEMI { Error=true; }
 	;
 
 //Local Definitions
 DefList	:	Def DefList 
-				{ $$=newNode(@$.first_line,TYPE_DefList,"DefList","");
-				insertTree($$,$1);insertTree($$,$2); }
+			{ $$=newNode(@$.first_line,TYPE_DefList,"DefList","");
+			insertTree($$,$1);insertTree($$,$2); }
 	|	/*empty*/ { $$=NULL; }
 	;
 Def	:	Specifier DecList SEMI 
 			{ $$=newNode(@$.first_line,TYPE_Def,"Def","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
-	|	error SEMI { Error=true; }
+	//|	error SEMI { Error=true; }
+	| 	Specifier error SEMI { Error=true; }
 	;
 DecList	:	Dec 
-				{ $$=newNode(@$.first_line,TYPE_DecList,"DecList","");
-				insertTree($$,$1); }
+			{ $$=newNode(@$.first_line,TYPE_DecList,"DecList","");
+			insertTree($$,$1); }
 	|	Dec COMMA DecList 
 			{ $$=newNode(@$.first_line,TYPE_DecList,"DecList","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
@@ -242,11 +248,12 @@ Exp	:	Exp ASSIGNOP Exp
 	|	FLOAT 
 			{ $$=newNode(@$.first_line,TYPE_Exp,"Exp","");insertTree($$,$1); }
 	|	Exp LB error RB { Error=true; }
-	|	error RP { Error=true; }
+	//|	error RP { Error=true; }
+	//|	LB error RB { Error=true; }; //
 	;
 Args	:	Exp COMMA Args 
-				{ $$=newNode(@$.first_line,TYPE_Args,"Args","");
-				insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
+			{ $$=newNode(@$.first_line,TYPE_Args,"Args","");
+			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
 	| 	Exp 
 			{ $$=newNode(@$.first_line,TYPE_Args,"Args","");insertTree($$,$1); }
 	;
