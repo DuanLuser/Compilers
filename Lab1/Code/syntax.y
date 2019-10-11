@@ -45,6 +45,7 @@
 
 %start Program
 
+%error-verbose
 
 %%
 //High-level Definition
