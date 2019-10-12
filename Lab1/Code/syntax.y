@@ -1,7 +1,7 @@
 %{
 	#include "lex.yy.c"
 	#include "tree.h"
-
+	
 	//extern int yylineno;
 %}
 
@@ -65,9 +65,9 @@ ExtDef	:	Specifier ExtDecList SEMI
 	|	Specifier FunDec CompSt 
 			{ $$=newNode(@$.first_line,TYPE_ExtDef,"ExtDef","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
-	| 	Specifier FunDec error { Error=true; }
-	| 	Specifier error CompSt { Error=true; }
-	|	error SEMI { Error=true; }
+	| 	Specifier FunDec error { ErrorSyn=true; } //--
+	| 	Specifier error CompSt { ErrorSyn=true; } //--
+	|	error SEMI { ErrorSyn=true; }
 	;
 ExtDecList	:	VarDec 
 				{ $$=newNode(@$.first_line,TYPE_ExtDecList,"ExtDecList","");
@@ -91,7 +91,7 @@ StructSpecifier	:	STRUCT OptTag LC DefList RC
 	|	STRUCT Tag 
 			{ $$=newNode(@$.first_line,TYPE_StructSpecifier,"StructSpecifier","");
 			insertTree($$,$1);insertTree($$,$2); }
-	//|	error RC { Error=true; }
+	//|	STRUCT OptTag error RC { ErrorSyn=true; } //.
 	;
 OptTag	:	ID 
 			{ $$=newNode(@$.first_line,TYPE_OptTag,"OptTag","");
@@ -110,7 +110,7 @@ VarDec	:	ID
 	|	VarDec LB INT RB 
 			{ $$=newNode(@$.first_line,TYPE_VarDec,"VarDec","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4); }
-	|	error RB { Error=true; }
+	|	error RB { ErrorSyn=true; }//..  error RB { ErrorSyn=true; } ->VarDec LB error RB 
 	;
 FunDec	:	ID LP VarList RP 
 			{ $$=newNode(@$.first_line,TYPE_FuncDec,"FunDec","");
@@ -118,7 +118,7 @@ FunDec	:	ID LP VarList RP
 	|	ID LP RP 
 			{ $$=newNode(@$.first_line,TYPE_FuncDec,"FunDec","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
-	|	ID LP error RP { Error=true; }
+	|	ID LP error RP { ErrorSyn=true; } //.. ID LP error RP { ErrorSyn=true; }
 	;
 VarList	:	ParamDec COMMA VarList 
 			{ $$=newNode(@$.first_line,TYPE_VarList,"VarList","");
@@ -136,9 +136,8 @@ ParamDec	:	Specifier VarDec
 CompSt	:	LC DefList StmtList RC 
 			{ $$=newNode(@$.first_line,TYPE_CompSt,"CompSt","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4); }
-	//|	error RC { Error=true; }
-	|	LC DefList error RC { Error=true; }
-	| 	LC DefList StmtList error { Error=true; }
+	|	LC DefList error RC { ErrorSyn=true; }
+	| 	LC DefList StmtList error { ErrorSyn=true; } //--
 	;
 StmtList	:	Stmt StmtList 
 				{ $$=newNode(@$.first_line,TYPE_StmtList,"StmtList","");
@@ -163,9 +162,9 @@ Stmt	:	Exp SEMI
 	|	WHILE LP Exp RP Stmt
 			{ $$=newNode(@$.first_line,TYPE_Stmt,"Stmt","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3);insertTree($$,$4);insertTree($$,$5); }
-	//|	error SEMI { Error=true; }
-	//|	error RP { Error=true; }
-	|	Exp error SEMI { Error=true; }
+	|	Exp error SEMI { ErrorSyn=true; }  //.. Exp error SEMI { ErrorSyn=true; }
+	|	IF error RP Stmt %prec LOWER_THAN_ELSE { ErrorSyn=true; } //.
+	|	IF error RP Stmt ELSE Stmt { ErrorSyn=true; } //.
 	;
 
 //Local Definitions
@@ -177,8 +176,7 @@ DefList	:	Def DefList
 Def	:	Specifier DecList SEMI 
 			{ $$=newNode(@$.first_line,TYPE_Def,"Def","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
-	//|	error SEMI { Error=true; }
-	| 	Specifier error SEMI { Error=true; }
+	| 	Specifier error SEMI { ErrorSyn=true; }
 	;
 DecList	:	Dec 
 			{ $$=newNode(@$.first_line,TYPE_DecList,"DecList","");
@@ -193,6 +191,8 @@ Dec	:	VarDec
 	|	VarDec ASSIGNOP Exp 
 			{ $$=newNode(@$.first_line,TYPE_Dec,"Dec","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
+	|	error ASSIGNOP Exp { ErrorSyn=true; }//.
+	//|	VarDec ASSIGNOP error { ErrorSyn=true; }//.
 	;
 
 //Expressions
@@ -247,9 +247,8 @@ Exp	:	Exp ASSIGNOP Exp
 			{ $$=newNode(@$.first_line,TYPE_Exp,"Exp",""); insertTree($$,$1); }
 	|	FLOAT 
 			{ $$=newNode(@$.first_line,TYPE_Exp,"Exp","");insertTree($$,$1); }
-	|	Exp LB error RB { Error=true; }
-	//|	error RP { Error=true; }
-	//|	LB error RB { Error=true; }; //
+	|	Exp LB error RB { ErrorSyn=true; }
+	//|	error { ErrorSyn=true; } //.
 	;
 Args	:	Exp COMMA Args 
 			{ $$=newNode(@$.first_line,TYPE_Args,"Args","");
@@ -261,7 +260,8 @@ Args	:	Exp COMMA Args
 %%
 yyerror(char* msg)  //rewrite
 {
-	fprintf(stderr,"Error type B at Line %d: %s\n",yylineno,msg);
+	if(!ErrorLex)// guarantee one error per line
+		fprintf(stderr,"Error type B at Line %d: %s\n",yylineno,msg);
 }	
 
 

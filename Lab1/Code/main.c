@@ -15,13 +15,14 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	//initialize
-	Error=false;
+	ErrorLex=false;
+	ErrorSyn=false;
 	root=NULL;
 	yylineno=1;
 
 	yyrestart(f);
 	yyparse();
-	if(!Error) //no error, output the syntax tree
+	if(!ErrorLex&&!ErrorSyn) //no error, output the syntax tree
 	{
 		computeDepth(root);
 		printTree(root);

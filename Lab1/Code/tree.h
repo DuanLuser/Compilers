@@ -22,7 +22,8 @@ typedef struct TreeNode
 
 }TreeNode;
 
-extern bool Error;
+extern bool ErrorLex;
+extern bool ErrorSyn;
 
 extern TreeNode* root;
 extern TreeNode* newNode(int line,enum NodeType tp,char name[],char value[]);

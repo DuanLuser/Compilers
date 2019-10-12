@@ -9,6 +9,7 @@
 		yylloc.last_column=yycolumn+yyleng-1; \
 		yycolumn+=yyleng;
 	//TAB  LINEBREAK  FLOAT  FLOAT_exp
+	//FLOAT  (({digit}+\.)|({digit}*\.{digit}+))f?   ({digit}+\.{digit}+)f?
 %}
 
 %option yylineno
@@ -78,7 +79,7 @@ ID  {letter}({letter}|{digit})*
 {ID}	{ yylval.tree_node=newNode(yylineno,TOKEN_ID,"ID",yytext); return ID; }
 {SPACE}|{TAB}	{}
 {LINEBREAK}	{ yycolumn=1; }
-.	{ Error=true; printf("Error type A at line %d: Mysterious character \"%s\"\n",yylineno,yytext); }
+.	{ ErrorLex=true; printf("Error type A at line %d: Mysterious character \"%s\"\n",yylineno,yytext); }
 
 %%
 
