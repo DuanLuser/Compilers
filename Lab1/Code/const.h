@@ -2,7 +2,7 @@
 #define CONST_H
 /*
 non-terminater begin with "TYPE_"
-token begin with "TOKEN"
+token begin with "TOKEN_"
 */
 enum NodeType{
 	TOKEN_INT, TOKEN_FLOAT, TOKEN_ID, TOKEN_TYPE,
