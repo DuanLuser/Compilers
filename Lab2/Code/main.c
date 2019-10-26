@@ -1,4 +1,5 @@
 #include "tree.h"
+#include "semantic.h"
 //extern FILE* yyin;
 
 extern int yylineno;
@@ -25,7 +26,7 @@ int main(int argc, char** argv)
 	if(!ErrorLex&&!ErrorSyn) //no error, output the syntax tree
 	{
 		computeDepth(root);
-		printTree(root);
+		//initHashTable(); traverseTree(root);
 	}
 	deleteTree(root);
 	return 0;
