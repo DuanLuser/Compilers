@@ -20,7 +20,7 @@ TreeNode* newNode(int line,enum NodeType tp,char name[],char value[])
 
 void insertTree(TreeNode* cur,TreeNode* p)
 {
-	if(cur!=NULL&&p!=NULL)
+	if(cur!=NULL&&p!=NULL)// "p!=NULL" is important !
 	{
 	/*
 		printf("%s ,%d \n",cur->Name,cur->Depth);
