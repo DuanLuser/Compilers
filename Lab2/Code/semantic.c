@@ -296,8 +296,8 @@ void FunDec(TreeNode* p, FuncObject *fundec)//Done
 	}
 	fundec->name=(char*)malloc(Length*sizeof(char));
 	strcpy(fundec->name,funcName->value);//确定函数名
-	VarObject* vexist=CheckInValHashTable(q->next->firstChild->value, false);
-	FuncObject* fexist = CheckInFuncHashTable(q->next->firstChild->value);
+	VarObject* vexist=CheckInValHashTable(funcName->value, false);
+	FuncObject* fexist = CheckInFuncHashTable(funcName->value);
 	if(vexist!=NULL&&fexist!=NULL)
 	{
 		//报错重复定义
@@ -327,7 +327,7 @@ void VarList(TreeNode* p, FuncObject *fundec, int index)//Done
 	{
 		//说明是VarList->ParamDec COMMA VarList
 		ParamDec(p->firstChild, fundec->args, index);
-		VarList(p->lastChild, fundec->args, index+1);
+		VarList(p->lastChild, fundec, index+1);
 	}
 	
 }
@@ -356,13 +356,13 @@ void CompSt(TreeNode* p, Type rtype)
 		globalDepth+=1;
 	if(q->next && q->next->nodetype==TYPE_DefList)
 	{
-		DefList(defList);
+		DefList(q->next, NULL);//不是从结构体进入DefList
 		TreeNode* stmtList = q->next->next;
 		if(stmtList && stmtList->nodetype==TYPE_StmtList)
 			StmtList(stmtList, rtype);
 	}
 	else if(q->next && q->next->nodetype==TYPE_StmtList)
-		StmtList(stmtList, rtype);
+		StmtList(q->next, rtype);
 	
 	if(p->lastChild && p->lastChild->nodetype==TOKEN_RC)
 		globalDepth-=1;
@@ -391,7 +391,7 @@ void Stmt(TreeNode* p, Type rtype)
 		break;
 	case TYPE_CompSt:
 		{ 
-			CompSt(q);
+			CompSt(q, NULL);//语句块没有返回值类型
 		}
 		break;
 	case TOKEN_RETURN:
@@ -435,7 +435,7 @@ void Stmt(TreeNode* p, Type rtype)
 			TreeNode* s=r->next->next;
 			Stmt(s, rtype);
 			if(s->next && s->next->nodetype==TOKEN_ELSE)
-				Stmt(s->next->next, rtype)
+				Stmt(s->next->next, rtype);
 		
 		} 
 		break;
@@ -494,25 +494,27 @@ void Def(TreeNode* p, FieldList st)
 			vitem->indexNext=NULL;
 			vitem->fieldNext=NULL;
 			AddToValHashTable(vitem);//insert
-						
-			FieldList field=(FieldList)malloc(sizeof(FieldList_));
-			field->name=(char*)malloc(Length*sizeof(char));
-			strcpy(field->name, declist->val->name);
-			field->type=declist->val->type;
-			field->tail=NULL;
-			if(st->type==NULL)
+			if(st!=NULL)		
 			{
-				st->type=(Type)malloc(sizeof(Type_));
-				st->type->kind=STRUCTURE;
-				st->type->u.structure=field;
+				FieldList field=(FieldList)malloc(sizeof(FieldList_));
+				field->name=(char*)malloc(Length*sizeof(char));
+				strcpy(field->name, declist->val->name);
+				field->type=declist->val->type;
+				field->tail=NULL;
+				if(st->type==NULL)
+				{
+					st->type=(Type)malloc(sizeof(Type_));
+					st->type->kind=STRUCTURE;
+					st->type->u.structure=field;
+				}
+				else
+				{
+					FieldList f=st->type->u.structure;
+					while(f->tail) f=f->tail;
+					f->tail=field;		
+				}			
+				declist=declist->next;
 			}
-			else
-			{
-				FieldList f=st->type->u.structure;
-				while(f->tail) f=f->tail;
-				f->tail=field;		
-			}			
-			declist=declist->next;
 		}
 	}
 	//if(!q->next->next || strcmp(q->next->next->name,"SEMI")!=0)	return;
@@ -561,53 +563,53 @@ void Dec(TreeNode* p, Type specifier, vector *declist)
 /*(6) Expressions*/  //TO BE CONTINUE
 VarObject* Exp(TreeNode* p)//!
 {
-	if(p==NULL)	return;
+	if(p==NULL)	return NULL;
 	TreeNode* q=p->firstChild;
-	if(q==NULL)	return;
+	if(q==NULL)	return NULL;
 	if(q->nodetype == TYPE_Exp)
 	{
 		VarObject* exp = Exp(q);
 		VarObject* exp1=NULL;
-		if(q->next==NULL)	return;
+		if(q->next==NULL)	return NULL;
 		TreeNode* r=q->next->next;
 		switch(q->next->nodetype)//match or not, important
 		{
 		case TOKEN_ASSIGNOP:{
-						if(r==NULL)	return;
+						if(r==NULL)	return NULL;
 						exp1=Exp(r);
 			}break;
 		case TOKEN_AND:		{
-						if(r==NULL)	return;
+						if(r==NULL)	return NULL;
 						exp1=Exp(r);					
 			}break;
 		case TOKEN_OR:		{
-						if(r==NULL)	return;
+						if(r==NULL)	return NULL;
 						exp1=Exp(r);
 			}break;
 		case TOKEN_RELOP:	{
-						if(r==NULL)	return;
+						if(r==NULL)	return NULL;
 						exp1=Exp(r);
 			}break;
 		case TOKEN_PLUS:	{
-						if(r==NULL)	return;
+						if(r==NULL)	return NULL;
 						exp1=Exp(r);						
 			}break;
 		case TOKEN_MINUS:	{
-						if(r==NULL)	return;
+						if(r==NULL)	return NULL;
 						exp1=Exp(r);				
 			}break;
 		case TOKEN_STAR:	{
-						if(r==NULL)	return;
+						if(r==NULL)	return NULL;
 						exp1=Exp(r);					
 			}break;
 		case TOKEN_DIV:		{
-						if(r==NULL)	return;
+						if(r==NULL)	return NULL;
 						exp1=Exp(r);					
 			}break;
 		case TOKEN_LB:		{
-						if(r==NULL)	return;
+						if(r==NULL)	return NULL;
 						exp1=Exp(r);		
-						if(r->next==NULL)	return;	//RB
+						if(r->next==NULL)	return NULL;	//RB
 			}break;		
 		case TOKEN_DOT:		{
 						char name[Length];
