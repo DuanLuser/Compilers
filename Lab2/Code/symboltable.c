@@ -111,7 +111,6 @@ VarObject* CheckInValHashTable(char* name, bool strict)
 				return queue->val;
 			}
 		}
-		printf("3\n");
 		queue = queue->indexNext;
 	}
 	return NULL;
