@@ -26,7 +26,8 @@ int main(int argc, char** argv)
 	if(!ErrorLex&&!ErrorSyn) //no error, output the syntax tree
 	{
 		computeDepth(root);
-		//initHashTable(); traverseTree(root);
+		//initHashTable(); 
+		traverseTree(root);
 	}
 	deleteTree(root);
 	return 0;

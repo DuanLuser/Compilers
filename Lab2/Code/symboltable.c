@@ -113,7 +113,7 @@ VarObject* CheckInValHashTable(char* name, bool strict)
 FuncObject* CheckInFuncHashTable(char* name)
 {
 	unsigned int key = pjwhash(name);
-	FuncHashTable* queue = vtable[key];
+	FuncHashTable* queue = ftable[key];
 	if(queue == NULL)
 		return NULL;
 	while(queue != NULL)
