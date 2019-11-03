@@ -154,17 +154,7 @@ void ExtDef(TreeNode* p) //not Done-> the last "CompSt(q->next->next);"
 	}
 	else if (q->next && q->next->nodetype == TOKEN_SEMI)
 	{
-		//结构体，估计为StructSpecifier的返回；不过对于"int;" "float;"需要判断处理
-		//插入vtable，depth为globalDepth
-		//此情况OptTag一定存在
-		//vitem->depth = globalDepth;
-		VarObject* val = (VarObject*)malloc(sizeof(VarObject));
-		if (specifier->kind != STRUCTURE)	return; //排除 "int;"  "float;"
-		val->name = (char*)malloc(Length * sizeof(char));
-		strcpy(val->name, specifier->u.structure->name);//赋值结构体名称；则判断结构体是否相同时--名等价
-		val->type = specifier;
-		//AddToValHashTable();//insert
-		AddToSymbolTable(val);
+		;//结构体，为StructSpecifier的返回在创建时已经插入vtable；对于"int;" "float;"不需要额外处理
 	}
 	else if (q->next && q->next->nodetype == TYPE_FuncDec)
 	{
@@ -174,7 +164,6 @@ void ExtDef(TreeNode* p) //not Done-> the last "CompSt(q->next->next);"
 		fundec->args->val = NULL;
 		fundec->args->next = NULL;
 		fundec->args->last = fundec->args;
-
 		FunDec(q->next, fundec);
 		if (fundec->args != NULL)//若重复定义，则会将fundec->args置NULL
 		{
@@ -277,10 +266,17 @@ Type StructSpecifier(TreeNode* p)//Done
 		//表明已经遇到一个}： 
 		//globalDepth -= 1;
 		FreeThisNameSpace();
-		Type typ = (Type)malloc(sizeof(Type_));
-		typ->kind = STRUCTURE;
-		typ->u.structure = st;
-		return typ;
+
+		Type type = (Type)malloc(sizeof(Type_));
+		type->kind = STRUCTURE;
+		type->u.structure = st;
+
+		VarObject* val = (VarObject*)malloc(sizeof(VarObject));
+		val->name = (char*)malloc(Length * sizeof(char));
+		strcpy(val->name, type->u.structure->name);//赋值结构体名称；则判断结构体是否相同时--名等价
+		val->type = type;
+		AddToSymbolTable(val);//将结构体插入vtable
+		return type;
 	}
 	else if (q->next && q->next->nodetype == TYPE_Tag) //define variables WITH the defined structure, find
 	{
@@ -312,6 +308,8 @@ void VarDec(TreeNode* p, Type specifier, vector *list, Type Array, FieldList st)
 		//TODO: check TOKEN_ID is in symbol table
 		//Add or report error
 		//首先check 该变量在同一深度是否已经存在，错误3
+		if(specifier->kind==STRUCTURE)//针对A_3.cmm的解读
+			;
 		VarObject* vexist = CheckInValHashTable(q->value, true);
 		//FuncObject* fexist = CheckInFuncHashTable(q->value);
 		if (vexist == NULL)
@@ -505,7 +503,7 @@ void Stmt(TreeNode* p, Type rtype)
 	break;
 	case TYPE_CompSt:
 	{
-		CompSt(q, NULL);//语句块没有返回值类型
+		CompSt(q, rtype);//语句块没有返回值类型
 	}
 	break;
 	case TOKEN_RETURN:
@@ -647,7 +645,6 @@ void Dec(TreeNode* p, Type specifier, vector *declist, FieldList st)
 /*(6) Expressions*/  //TO BE CONTINUE
 VarObject* Exp(TreeNode* p)//!
 {
-	//printf("here\n");
 	if (p == NULL)	return NULL;
 	TreeNode* q = p->firstChild;
 	if (q == NULL)	return NULL;
@@ -733,7 +730,9 @@ VarObject* Exp(TreeNode* p)//!
 			if (exp->type->kind != ARRAY)
 			{
 				printf("Error type %d at Line %d: \"%s\" is not an array.\n", 10, q->next->line, exp->name);
-				return newVar(true);
+				VarObject *tmp=newVar(true);
+				tmp->type=exp->type;
+				return tmp;
 			}
 			if (r == NULL)	return NULL;
 			exp1 = Exp(r);
@@ -742,7 +741,7 @@ VarObject* Exp(TreeNode* p)//!
 			{
 				//报错12
 				printf("Error type %d at Line %d: The number in \"[]\" is not an integer.\n", 12, q->next->line);
-				return newVar(true);
+				//虽然不是整数，但还是要返回数组中的类型
 			}
 			if (r->next == NULL)	return NULL;	//RB
 			VarObject* tmp = newVar(true);
@@ -846,6 +845,7 @@ VarObject* Exp(TreeNode* p)//!
 						{
 							nonequal = 1; break;
 						}
+						p=p->next; pf=pf->next;
 					}
 				}
 				if (nonequal)
