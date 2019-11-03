@@ -83,6 +83,38 @@ VarObject* CheckInValHashTable(char* name, bool strict);
 FuncObject* CheckInFuncHashTable(char* name);
 unsigned int pjwhash(char *name);
 
+//namespace
+typedef struct NameFieldStruct NameFieldStruct;
+typedef struct NameFieldStruct 
+{
+	int deep;
+	int size;
+	ValHashTable*items;
+	NameFieldStruct* next;
+} namesfield;
+
+//这里负责有关命名空间的处理
+//作用域
+NameFieldStruct* NameSpace;
+unsigned int CurrentDept;
+//初始化
+void initNameSpace();
+//展开新的作用域
+void CreateNewSpace();
+//和加入符号表结合使用
+void AddToSymbolTable(VarObject* item);
+//将语句块中的变量名全部去掉
+void FreeThisNameSpace();
+void initSymbolTable();
+
+
+//Tool工具，不重要可不看
+void ToolDeleteValHashTable(ValHashTable* item);
+//void ToolFreeValHashTable(ValHashTable*item);
+void ToolFreeType(Type type);
+void ToolFreeFieldList(FieldList flist);
+void ToolFreeVarObject(VarObject* item);
+
 #endif
 
 

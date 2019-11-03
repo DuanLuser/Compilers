@@ -103,13 +103,12 @@ Type CheckInStructure(Type st, char* name)
 }
 
 
-int globalDepth = 0;
+//int globalDepth = 0;
 //FieldList structure中的structure需要提前分配空间
 
 void traverseTree(TreeNode* root)
 {
-	initHashTable();
-	globalDepth = 0;
+	initSymbolTable();
 	Program(root);
 }
 
@@ -150,37 +149,22 @@ void ExtDef(TreeNode* p) //not Done-> the last "CompSt(q->next->next);"
 	FuncObject *fundec = NULL;
 	if (q->next && q->next->nodetype == TYPE_ExtDecList)
 	{
-		ExtDecList(q->next, specifier, extdeclist);//这样可以修改extdeclist
-												   //specifier + extdeclist 插入vtable--while循环,depth为globalDepth
-												   //此情况若specifier为结构体，OptTag可以为NULL
-
-		extdeclist = extdeclist->next;
-		while (extdeclist)
-		{
-			ValHashTable *vitem = (ValHashTable*)malloc(sizeof(ValHashTable));
-			vitem->depth = globalDepth;
-			vitem->val = extdeclist->val;// !会不会有指针副作用
-			vitem->indexNext = NULL;
-			vitem->fieldNext = NULL;
-			AddToValHashTable(vitem);//insert
-			extdeclist = extdeclist->next;
-		}
+		ExtDecList(q->next, specifier, extdeclist);//此处extdeclist作用不大
+		//此情况若specifier为结构体，OptTag可以为NULL
 	}
 	else if (q->next && q->next->nodetype == TOKEN_SEMI)
 	{
 		//结构体，估计为StructSpecifier的返回；不过对于"int;" "float;"需要判断处理
 		//插入vtable，depth为globalDepth
 		//此情况OptTag一定存在
-		ValHashTable *vitem = (ValHashTable*)malloc(sizeof(ValHashTable));
-		vitem->depth = globalDepth;
-		vitem->val = (VarObject*)malloc(sizeof(VarObject));
+		//vitem->depth = globalDepth;
+		VarObject* val = (VarObject*)malloc(sizeof(VarObject));
 		if (specifier->kind != STRUCTURE)	return; //排除 "int;"  "float;"
-		vitem->val->name = (char*)malloc(Length * sizeof(char));
-		strcpy(vitem->val->name, specifier->u.structure->name);//赋值结构体名称；则判断结构体是否相同时--名等价
-		vitem->val->type = specifier;
-		vitem->indexNext = NULL;
-		vitem->fieldNext = NULL;
-		AddToValHashTable(vitem);//insert
+		val->name = (char*)malloc(Length * sizeof(char));
+		strcpy(val->name, specifier->u.structure->name);//赋值结构体名称；则判断结构体是否相同时--名等价
+		val->type = specifier;
+		//AddToValHashTable();//insert
+		AddToSymbolTable(val);
 	}
 	else if (q->next && q->next->nodetype == TYPE_FuncDec)
 	{
@@ -260,9 +244,9 @@ Type StructSpecifier(TreeNode* p)//Done
 		TreeNode* r = NULL;
 		if (q->next->nodetype == TYPE_OptTag)
 		{
-			VarObject* vexist = CheckInValHashTable(q->next->firstChild->value, false);
-			FuncObject* fexist = CheckInFuncHashTable(q->next->firstChild->value);
-			if (vexist == NULL && fexist == NULL)
+			VarObject* vexist = CheckInValHashTable(q->next->firstChild->value, true);
+			//FuncObject* fexist = CheckInFuncHashTable(q->next->firstChild->value);
+			if (vexist == NULL)
 			{
 				st->name = (char*)malloc(Length * sizeof(char));
 				strcpy(st->name, q->next->firstChild->value);//将OptTag的ID赋给结构体名称
@@ -282,7 +266,8 @@ Type StructSpecifier(TreeNode* p)//Done
 			r = q->next->next;
 		}
 		//经过上述语句，表明已经遇到一个{： 
-		globalDepth += 1;
+		//globalDepth += 1;
+		CreateNewSpace();
 		if (r && r->nodetype == TYPE_DefList)//DefList可能为空 
 		{
 			st->type == NULL;
@@ -290,8 +275,8 @@ Type StructSpecifier(TreeNode* p)//Done
 		}
 		//if(!r->next || strcmp(r->next->name,"RC")!=0)	return NULL;
 		//表明已经遇到一个}： 
-		globalDepth -= 1;
-
+		//globalDepth -= 1;
+		FreeThisNameSpace();
 		Type typ = (Type)malloc(sizeof(Type_));
 		typ->kind = STRUCTURE;
 		typ->u.structure = st;
@@ -299,10 +284,8 @@ Type StructSpecifier(TreeNode* p)//Done
 	}
 	else if (q->next && q->next->nodetype == TYPE_Tag) //define variables WITH the defined structure, find
 	{
-		char name[Length];
-		strcpy(name, q->next->firstChild->value);
 		//"find type with the name in the vtable"; check error 17
-		VarObject* structure = CheckInValHashTable(name, false);//strict先赋值false
+		VarObject* structure = CheckInValHashTable(q->next->firstChild->value, false);//strict先赋值false
 		if (structure == NULL)
 		{
 			//报错结构体未定义
@@ -329,8 +312,7 @@ void VarDec(TreeNode* p, Type specifier, vector *list, Type Array, FieldList st)
 		//TODO: check TOKEN_ID is in symbol table
 		//Add or report error
 		//首先check 该变量在同一深度是否已经存在，错误3
-
-		VarObject* vexist = CheckInValHashTable(q->value, false);
+		VarObject* vexist = CheckInValHashTable(q->value, true);
 		//FuncObject* fexist = CheckInFuncHashTable(q->value);
 		if (vexist == NULL)
 		{
@@ -347,11 +329,33 @@ void VarDec(TreeNode* p, Type specifier, vector *list, Type Array, FieldList st)
 			//插入 list
 			list->last->next = vardec;
 			list->last = vardec;
+
+			AddToSymbolTable(vardec->val);
+			if (st != NULL)
+			{
+				FieldList field = (FieldList)malloc(sizeof(FieldList_));
+				field->name = (char*)malloc(Length * sizeof(char));
+				strcpy(field->name, vardec->val->name);
+				field->type = vardec->val->type;
+				field->tail = NULL;
+				if (st->type == NULL)
+				{
+					st->type = (Type)malloc(sizeof(Type_));
+					st->type->kind = STRUCTURE;
+					st->type->u.structure = field;
+				}
+				else
+				{
+					FieldList f = st->type->u.structure;
+					while (f->tail) f = f->tail;
+					f->tail = field;
+				}
+			}
 		}
 		else
 		{
 			//报错重复定义	,可以return
-			if(st==NULL)
+			if (st == NULL)
 				printf("Error type %d at Line %d: Redefined variable \"%s\".\n", 3, q->line, q->value);
 			else
 				printf("Error type %d at Line %d: Redefined field \"%s\".\n", 15, q->line, q->value);
@@ -404,7 +408,7 @@ void FunDec(TreeNode* p, FuncObject *fundec)//Done
 	}
 	fundec->name = (char*)malloc(Length * sizeof(char));
 	strcpy(fundec->name, funcName->value);//确定函数名
-										  //VarObject* vexist=CheckInValHashTable(funcName->value, false);
+	//VarObject* vexist=CheckInValHashTable(funcName->value, false);
 	FuncObject* fexist = CheckInFuncHashTable(funcName->value);
 	if (fexist != NULL)
 	{
@@ -421,17 +425,6 @@ void FunDec(TreeNode* p, FuncObject *fundec)//Done
 		int index = 1; //!
 		VarList(funcVars, fundec, index);
 		//需要将函数形参列表插入哈希表？  需要！
-		vector* args = fundec->args->next;
-		while (args)
-		{
-			ValHashTable *vitem = (ValHashTable*)malloc(sizeof(ValHashTable));
-			vitem->depth = globalDepth;
-			vitem->val = args->val;// !会不会有指针副作用
-			vitem->indexNext = NULL;
-			vitem->fieldNext = NULL;
-			AddToValHashTable(vitem);//insert
-			args = args->next;
-		}
 	}
 }
 
@@ -465,8 +458,8 @@ void ParamDec(TreeNode* p, vector *vars, int index)//Done
 }
 
 
-/*(4) Statements*/ //TO BE CONTINUE
-				   //TODO：在函数块中的{}包围部分，需要考虑作用域的问题
+/*(4) Statements*/
+//TODO：在函数块中的{}包围部分，需要考虑作用域的问题
 void CompSt(TreeNode* p, Type rtype)
 {
 	if (p == NULL) return;
@@ -474,7 +467,7 @@ void CompSt(TreeNode* p, Type rtype)
 	//这期间调用VarDec之类新加的局部变量都挂在这个作用域上，和书上的图一样
 	TreeNode* q = p->firstChild;
 	if (q && q->nodetype == TOKEN_LC)
-		globalDepth += 1;
+		CreateNewSpace();// globalDepth += 1;
 	if (q->next && q->next->nodetype == TYPE_DefList)
 	{
 		DefList(q->next, NULL);//不是从结构体进入DefList
@@ -486,7 +479,7 @@ void CompSt(TreeNode* p, Type rtype)
 		StmtList(q->next, rtype);
 
 	if (p->lastChild && p->lastChild->nodetype == TOKEN_RC)
-		globalDepth -= 1;
+		FreeThisNameSpace();// globalDepth -= 1;
 
 	//TODO：在结束是释放局部变量，pop作用域栈
 }
@@ -595,37 +588,6 @@ void Def(TreeNode* p, FieldList st)
 		declist->last = declist;
 
 		DecList(q->next, specifier, declist, st);
-		declist = declist->next;
-		while (declist)//对于类似 int x=5; ?
-		{
-			ValHashTable *vitem = (ValHashTable*)malloc(sizeof(ValHashTable));
-			vitem->depth = globalDepth;
-			vitem->val = declist->val;// !会不会有指针副作用
-			vitem->indexNext = NULL;
-			vitem->fieldNext = NULL;
-			AddToValHashTable(vitem);//insert
-			if (st != NULL)
-			{
-				FieldList field = (FieldList)malloc(sizeof(FieldList_));
-				field->name = (char*)malloc(Length * sizeof(char));
-				strcpy(field->name, declist->val->name);
-				field->type = declist->val->type;
-				field->tail = NULL;
-				if (st->type == NULL)
-				{
-					st->type = (Type)malloc(sizeof(Type_));
-					st->type->kind = STRUCTURE;
-					st->type->u.structure = field;
-				}
-				else
-				{
-					FieldList f = st->type->u.structure;
-					while (f->tail) f = f->tail;
-					f->tail = field;
-				}
-			}
-			declist = declist->next;
-		}
 	}
 	//if(!q->next->next || strcmp(q->next->next->name,"SEMI")!=0)	return;
 }
@@ -662,7 +624,7 @@ void Dec(TreeNode* p, Type specifier, vector *declist, FieldList st)
 			VarObject* exp = NULL;
 			if (q->next->next && q->next->next->nodetype == TYPE_Exp)
 			{
-				if(st!=NULL)
+				if (st != NULL)
 				{
 					printf("Error type %d at Line %d: Struct variables cannot be initialized.\n", 15, q->next->line);
 					return;
@@ -716,7 +678,7 @@ VarObject* Exp(TreeNode* p)//!
 			return exp1;//需要补充赋值过程
 		}break;
 		case TOKEN_AND:
-		case TOKEN_OR:	{
+		case TOKEN_OR: {
 			if (r == NULL)	return NULL;
 			exp1 = Exp(r);
 			//判断exp与exp1是否都为int
@@ -849,7 +811,7 @@ VarObject* Exp(TreeNode* p)//!
 		{
 			//从函数表中获取该name(函数名)对应的信息，利用返回值构建tmp
 			VarObject* vexist = CheckInValHashTable(q->value, false);
-			if(vexist!=NULL)
+			if (vexist != NULL)
 			{
 				printf("Error type %d at Line %d: \"%s\" is not a function.\n", 11, q->line, q->value);
 				return newVar(true);
