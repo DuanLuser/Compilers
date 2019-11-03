@@ -65,7 +65,7 @@ ExtDef	:	Specifier ExtDecList SEMI
 	|	Specifier FunDec CompSt 
 			{ $$=newNode(@$.first_line,TYPE_ExtDef,"ExtDef","");
 			insertTree($$,$1);insertTree($$,$2);insertTree($$,$3); }
-	| 	Specifier FunDec error { ErrorSyn=true; } //--
+	| 	Specifier FunDec error SEMI { ErrorSyn=true; } //for lab2
 	| 	Specifier error CompSt { ErrorSyn=true; } //--
 	|	error SEMI { ErrorSyn=true; }
 	;
