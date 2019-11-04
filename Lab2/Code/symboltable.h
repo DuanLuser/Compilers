@@ -71,7 +71,7 @@ typedef struct FuncHashTable
 } FuncHashTable;
 
 
-#define tsize 16384
+#define tsize 32768
 extern ValHashTable* vtable[tsize];
 extern FuncHashTable* ftable[tsize];
 

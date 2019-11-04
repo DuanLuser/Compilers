@@ -48,8 +48,8 @@ unsigned int pjwhash(char *name)
 	for(; *name; ++name)
 	{
 		val = (val<<2) + *name;
-		if(i = val & ~0x3fff)
-			val = (val ^ (i>>12)) & 0x3fff;
+		if(i = val & ~0x7fff)
+			val = (val ^ (i>>13)) & 0x7fff;
 	}
 	return val;
 }

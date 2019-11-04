@@ -77,7 +77,7 @@ bool typeEqual(Type t1, Type t2)
 VarObject* newVarObject(int kind)
 {
 	VarObject* newone = (VarObject*)malloc(sizeof(VarObject));
-	newone->name = NULL;   //没名字
+	newone->name = NULL;   //没名字 d
 	newone->type = (Type)malloc(sizeof(Type_));
 	switch (kind)
 	{
@@ -94,7 +94,7 @@ Type CheckInStructure(Type st, char* name)
 	if (st->kind != STRUCTURE) return NULL;
 	FieldList field = st->u.structure->type->u.structure;
 	while (field)
-	{
+	{	
 		if (strcmp(name, field->name) == 0)
 			return field->type;
 		field = field->tail;
@@ -259,7 +259,7 @@ Type StructSpecifier(TreeNode* p)//Done
 		CreateNewSpace();
 		if (r && r->nodetype == TYPE_DefList)//DefList可能为空 
 		{
-			st->type == NULL;
+			st->type = NULL;
 			DefList(r, st);	//st为结构体的头
 		}
 		//if(!r->next || strcmp(r->next->name,"RC")!=0)	return NULL;
@@ -310,24 +310,23 @@ void VarDec(TreeNode* p, Type specifier, vector *list, Type Array, FieldList st)
 		//首先check 该变量在同一深度是否已经存在，错误3
 		if(specifier->kind==STRUCTURE)//针对A_3.cmm的解读
 			;
+		vector* vardec = (vector*)malloc(sizeof(vector));
+		vardec->val = (VarObject*)malloc(sizeof(VarObject));
+		vardec->val->name = (char*)malloc(Length * sizeof(char));
+		strcpy(vardec->val->name, q->value);
+		vardec->next = vardec->last = NULL;
+		if (Array == NULL)//not array
+			vardec->val->type = specifier;
+		else
+			vardec->val->type = Array;
+		//插入 list
+		list->last->next = vardec;
+		list->last = vardec;
 		VarObject* vexist = CheckInValHashTable(q->value, true);
 		//FuncObject* fexist = CheckInFuncHashTable(q->value);
+		//如果不存在错误，则
 		if (vexist == NULL)
 		{
-			//如果不存在错误，则
-			vector* vardec = (vector*)malloc(sizeof(vector));
-			vardec->val = (VarObject*)malloc(sizeof(VarObject));
-			vardec->val->name = (char*)malloc(Length * sizeof(char));
-			strcpy(vardec->val->name, q->value);
-			vardec->next = vardec->last = NULL;
-			if (Array == NULL)//not array
-				vardec->val->type = specifier;
-			else
-				vardec->val->type = Array;
-			//插入 list
-			list->last->next = vardec;
-			list->last = vardec;
-
 			AddToSymbolTable(vardec->val);
 			if (st != NULL)
 			{
@@ -730,9 +729,7 @@ VarObject* Exp(TreeNode* p)//!
 			if (exp->type->kind != ARRAY)
 			{
 				printf("Error type %d at Line %d: \"%s\" is not an array.\n", 10, q->next->line, exp->name);
-				VarObject *tmp=newVar(true);
-				tmp->type=exp->type;
-				return tmp;
+				return exp;//不为数组，直接返回该变量
 			}
 			if (r == NULL)	return NULL;
 			exp1 = Exp(r);
@@ -740,7 +737,7 @@ VarObject* Exp(TreeNode* p)//!
 			if (exp1->type->kind != BASIC || exp1->type->u.basic != 0)
 			{
 				//报错12
-				printf("Error type %d at Line %d: The number in \"[]\" is not an integer.\n", 12, q->next->line);
+				printf("Error type %d at Line %d: The number in %s \"[]\" is not an integer.\n", 12, q->next->line, exp->name);
 				//虽然不是整数，但还是要返回数组中的类型
 			}
 			if (r->next == NULL)	return NULL;	//RB
@@ -758,23 +755,25 @@ VarObject* Exp(TreeNode* p)//!
 				return newVar(true);
 			}
 			//判断ID是否是该结构体中的域,写函数
-			Type fieldType = CheckInStructure(exp->type, r->value);
+			Type fieldType = NULL;
+			fieldType=CheckInStructure(exp->type, r->value);
 			if (fieldType == NULL)
 			{
 				printf("Error type %d at Line %d: Non-existent field of \"%s\".\n", 14, q->next->line, r->value);
 				return newVar(true);
 			}
 			VarObject* tmp = newVar(true);
-			tmp->name = (char*)malloc(3 * Length * sizeof(char));//名字为结构体变量名字+'.'+域名，如 x.y;
-			strcpy(tmp->name, exp->name);
+			tmp->name = (char*)malloc(3 * Length * sizeof(char));//(名字为结构体变量名字+'.'+)域名，如 x.y;
+			/*strcpy(tmp->name, exp->name);
 			strcat(tmp->name, ".");
-			strcat(tmp->name, r->value);
+			strcat(tmp->name, r->value);*/// 可能会出错
+			strcpy(tmp->name, r->value);
 			tmp->type = fieldType;
 			tmp->lvalue = true;
 			return tmp;
 
 		}break;
-		default:printf("error!\n");
+		default:break;//printf("error!\n");
 		}
 	}
 	else if (q->nodetype == TOKEN_LP)
@@ -813,7 +812,8 @@ VarObject* Exp(TreeNode* p)//!
 			if (vexist != NULL)
 			{
 				printf("Error type %d at Line %d: \"%s\" is not a function.\n", 11, q->line, q->value);
-				return newVar(true);
+				vexist->lvalue=true;
+				return vexist;
 			}
 			FuncObject* fexist = CheckInFuncHashTable(q->value);
 			if (fexist == NULL)
@@ -852,7 +852,7 @@ VarObject* Exp(TreeNode* p)//!
 				{
 					//printf("fact:%d, func:%d\n",args->last->index,fexist->args->last->index);
 					printf("Error type %d at Line %d: Function \"%s\" is not applicable for arguments.\n", 9, q->line, q->value);
-					return newVar(false);
+					//return newVar(false);  出错时还是返回原来函数的返回类型
 				}
 			}
 			else
@@ -861,13 +861,14 @@ VarObject* Exp(TreeNode* p)//!
 				if (fexist->args->last->val != NULL)
 				{
 					printf("Error type %d at Line %d: Function \"%s\" is not applicable for arguments.\n", 9, q->line, q->value);
-					return newVar(false);
+					//return newVar(false);  出错时还是返回原来函数的返回类型
 				}
 			}
 			tmp = (VarObject*)malloc(sizeof(VarObject));
 			//tmp->name=NULL;
 			tmp->type = fexist->rtype;
 			tmp->lvalue = false;
+			return tmp;
 		}
 		else //从变量表中获取该name(变量名)对应的信息, 构建tmp
 		{
@@ -879,6 +880,7 @@ VarObject* Exp(TreeNode* p)//!
 			}
 			tmp = vexist;
 			tmp->lvalue = true;
+			return tmp;
 		}
 		return tmp;
 	}
