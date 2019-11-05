@@ -191,7 +191,7 @@ void ExtDecList(TreeNode* p, Type specifier, vector *extdeclist)//Done
 	if (child->nodetype == TYPE_VarDec)
 	{
 		Type Array = NULL;//用于判断VarDec层，是否第一个便为ID；否则需按照数组处理
-						  //ExtDecList -> VarDec ExtDecList, and check VarDec all in symbol table
+		//ExtDecList -> VarDec ExtDecList, and check VarDec all in symbol table
 		VarDec(child, specifier, extdeclist, Array, NULL);
 	}
 	//if ExtDecList-> VarDec COMMA ExtDecList
@@ -825,10 +825,9 @@ VarObject* Exp(TreeNode* p)//!
 			{
 				//ID（Args）,得到参数列表
 				int index = 1;
-				vector *args = (vector*)malloc(sizeof(vector));
-				args->val = NULL;
-				args->next = NULL;
+				vector *args = CreateVector();//
 				args->last = args;
+
 				Args(q->next->next, args, index);
 				//检查参数列表类型是否符合符号表
 				int nonequal = 0;
