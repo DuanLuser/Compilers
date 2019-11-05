@@ -28,5 +28,3 @@ extern void Args(TreeNode* p, vector* args, int index);
 
 
 #endif
-
-

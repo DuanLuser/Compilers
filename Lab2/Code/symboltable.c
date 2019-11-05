@@ -86,7 +86,7 @@ void AddToFuncHashTable(FuncHashTable* item)
 	}
 	ftable[key] = item;
 }
-//检查是否符号表中已经有了这个变量,true用于定义位置检查，false用于使用位置检查； return NULL表示没找到
+//检查是否符号表中已经有了这个变量,true用于定义位置检查，false用于使用位置检查； return NULL表示没找到mak
 VarObject* CheckInValHashTable(char* name, bool strict)
 {
 	unsigned int key = pjwhash(name);
@@ -110,6 +110,26 @@ VarObject* CheckInValHashTable(char* name, bool strict)
 			{
 				return queue->val;
 			}
+		}
+		queue = queue->indexNext;
+	}
+	return NULL;
+}
+
+VarObject* CheckInVtableForStruct(char* name)
+{
+	unsigned int key = pjwhash(name);
+	ValHashTable* queue = vtable[key];
+	if(queue == NULL)
+		return NULL;
+	while(queue != NULL)
+	{
+		char* find = queue->val->name;
+		if(strcmp(name, find) == 0)
+		{
+			if(queue->val->type->kind==STRUCTURE)
+				if(strcmp(find,queue->val->type->u.structure->name) == 0)
+					return queue->val;
 		}
 		queue = queue->indexNext;
 	}

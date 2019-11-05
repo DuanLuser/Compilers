@@ -11,15 +11,14 @@ typedef struct vector
 	struct vector* last;
 } vector;
 
-/*
 //建议使用接口，不要自己访问里面的成员
 vector* CreateVector();
 void FreeVector(vector* vt);
-VarObject* GetFirstItem(vector* vt){if(vt->index > 0) return vt->var;else return NULL;}
+/*
+//VarObject* GetFirstItem(vector* vt){if(vt->index > 0) return vt->var;else return NULL;}
 //void GetLastItem(vector* vt){return vt->last;}
-void AddItem(vector* vt, VarObject* item);
-VarObject* GetItemByIndex(vector* vt, int index);
+void AddItem(vector* vt, struct VarObject* item);
+struct VarObject* GetItemByIndex(vector* vt, int index);
 bool RemoveItemByIndex(vector* vt, int index);
 */
-
 #endif

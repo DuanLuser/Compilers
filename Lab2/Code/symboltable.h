@@ -75,13 +75,14 @@ typedef struct FuncHashTable
 extern ValHashTable* vtable[tsize];
 extern FuncHashTable* ftable[tsize];
 
-void initHashTable();
-void freeHashTable();
-void AddToValHashTable(ValHashTable* item);
-void AddToFuncHashTable(FuncHashTable* item);
-VarObject* CheckInValHashTable(char* name, bool strict);
-FuncObject* CheckInFuncHashTable(char* name);
-unsigned int pjwhash(char *name);
+extern void initHashTable();
+extern void freeHashTable();
+extern void AddToValHashTable(ValHashTable* item);
+extern void AddToFuncHashTable(FuncHashTable* item);
+extern VarObject* CheckInValHashTable(char* name, bool strict);
+extern VarObject* CheckInVtableForStruct(char* name);
+extern FuncObject* CheckInFuncHashTable(char* name);
+extern unsigned int pjwhash(char *name);
 
 //namespace
 typedef struct NameFieldStruct NameFieldStruct;
@@ -98,22 +99,22 @@ typedef struct NameFieldStruct
 NameFieldStruct* NameSpace;
 unsigned int CurrentDept;
 //初始化
-void initNameSpace();
+extern void initNameSpace();
 //展开新的作用域
-void CreateNewSpace();
+extern void CreateNewSpace();
 //和加入符号表结合使用
-void AddToSymbolTable(VarObject* item);
+extern void AddToSymbolTable(VarObject* item);
 //将语句块中的变量名全部去掉
-void FreeThisNameSpace();
-void initSymbolTable();
+extern void FreeThisNameSpace();
+extern void initSymbolTable();
 
 
 //Tool工具，不重要可不看
-void ToolDeleteValHashTable(ValHashTable* item);
-//void ToolFreeValHashTable(ValHashTable*item);
-void ToolFreeType(Type type);
-void ToolFreeFieldList(FieldList flist);
-void ToolFreeVarObject(VarObject* item);
+extern void ToolDeleteValHashTable(ValHashTable* item);
+//extern void ToolFreeValHashTable(ValHashTable*item);
+extern void ToolFreeType(Type type);
+extern void ToolFreeFieldList(FieldList flist);
+extern void ToolFreeVarObject(VarObject* item);
 
 #endif
 
