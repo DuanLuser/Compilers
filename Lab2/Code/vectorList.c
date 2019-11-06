@@ -28,7 +28,7 @@ void FreeVector(vector* vt)
     {
         vector* tmp = vt;
         vt = vt->next;
-        ToolFreeVarObject(tmp->val);
+        //ToolFreeVarObject(tmp->val);
         free(tmp);
     }
 }

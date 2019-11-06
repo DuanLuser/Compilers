@@ -67,8 +67,17 @@ bool typeEqual(Type t1, Type t2)
 		}break;
 		case STRUCTURE:
 		{
-			if (strcmp(t1->u.structure->name, t2->u.structure->name) != 0)//名等价
-				nonequal = 1;
+			char *name1=t1->u.structure->name;
+			char *name2=t2->u.structure->name;
+			if(name1 != NULL || name2 != NULL)//至少有一个名字不为空，两个都为空时为等价
+			{	
+				if(name1!=NULL && name2!=NULL)//两个名字都不空，则进一步判断是否相等
+				{
+					if (strcmp(name1, name2) != 0)//名不等价
+						nonequal = 1;
+				}//必须有括号，貌似为就近匹配if-else
+				else nonequal = 1;//一个为空，一个不为空，不等价
+			}
 		}break;
 		default:break;
 		}
@@ -248,7 +257,7 @@ Type StructSpecifier(TreeNode* p)//Done
 		}
 		else if (q->next->nodetype == TOKEN_LC)//TYPE_OptTag可以为空，则q->next->nodetype=TOKEN_LC，此时结构体没有名称；则大概率后面为ExtDecList
 		{
-			st->name = NULL;
+			st->name = NULL;//TYPE_OptTag为空
 			r = q->next->next;
 		}
 		//经过上述语句，表明已经遇到一个{： 
@@ -268,8 +277,8 @@ Type StructSpecifier(TreeNode* p)//Done
 
 		VarObject* val = (VarObject*)malloc(sizeof(VarObject));
 		//val->name = (char*)malloc(Length * sizeof(char));
-		//strcpy(val->name, type->u.structure->name);//赋值结构体名称；则判断结构体是否相同时--名等价
-		val->name = type->u.structure->name;
+		//strcpy(val->name, type->u.structure->name);
+		val->name = type->u.structure->name;//赋值结构体名称；则判断结构体是否相同时--名字同
 		val->type = type;
 		if(vexist == NULL && sexist == NULL)
 			AddToSymbolTable(val);//将结构体插入vtable

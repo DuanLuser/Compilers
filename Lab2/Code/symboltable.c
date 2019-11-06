@@ -44,6 +44,7 @@ void freeHashTable()
 
 unsigned int pjwhash(char *name)
 {
+	if(name==NULL) return 0;//
 	unsigned int val=0, i;
 	for(; *name; ++name)
 	{
@@ -53,7 +54,7 @@ unsigned int pjwhash(char *name)
 	}
 	return val;
 }
-//向vtable加入ValHashTable
+/*向vtable加入ValHashTable*/
 void AddToValHashTable(ValHashTable* item)
 {
 	if(item == NULL) return;
@@ -72,7 +73,7 @@ void AddToValHashTable(ValHashTable* item)
 	vtable[key] = item;
 }
 
-//向Func表中加入fun
+/*向Func表中加入fun*/
 void AddToFuncHashTable(FuncHashTable* item)
 {
 	if(item == NULL) return;
@@ -86,7 +87,7 @@ void AddToFuncHashTable(FuncHashTable* item)
 	}
 	ftable[key] = item;
 }
-//检查是否符号表中已经有了这个变量,true用于定义位置检查，false用于使用位置检查； return NULL表示没找到mak
+/*检查是否符号表中已经有了这个变量,true用于定义位置检查，false用于使用位置检查； return NULL表示没找到*/
 VarObject* CheckInValHashTable(char* name, bool strict)
 {
 	unsigned int key = pjwhash(name);
@@ -96,7 +97,7 @@ VarObject* CheckInValHashTable(char* name, bool strict)
 	while(queue != NULL)
 	{
 		char* find = queue->val->name;
-		if(strcmp(name, find) == 0)
+		if(find && strcmp(name, find) == 0)
 		{
 			if(strict)
 			{
@@ -116,6 +117,7 @@ VarObject* CheckInValHashTable(char* name, bool strict)
 	return NULL;
 }
 
+/*检查变量是否与结构体名相同*/
 VarObject* CheckInVtableForStruct(char* name)
 {
 	unsigned int key = pjwhash(name);
@@ -125,11 +127,14 @@ VarObject* CheckInVtableForStruct(char* name)
 	while(queue != NULL)
 	{
 		char* find = queue->val->name;
-		if(strcmp(name, find) == 0)
+		if(find && strcmp(name, find) == 0)
 		{
 			if(queue->val->type->kind==STRUCTURE)
-				if(strcmp(find,queue->val->type->u.structure->name) == 0)
+			{
+				char *stname=queue->val->type->u.structure->name;
+				if(stname && strcmp(find, stname) == 0)
 					return queue->val;
+			}
 		}
 		queue = queue->indexNext;
 	}
@@ -164,7 +169,7 @@ void initNameSpace()
 	CurrentDept = 0;
 }
 
-//展开新的作用域
+/*展开新的作用域*/
 void CreateNewSpace()
 {
 	CurrentDept++;
@@ -185,12 +190,11 @@ void AddToNameSpace(ValHashTable* item)
 	NameSpace->items = item;
 }
 
-//将语句块中的变量名全部去掉
-
+/*将语句块中的变量名全部去掉*/
 void FreeThisNameSpace()
 {
 	if(CurrentDept == 0)
-		return;//printf("Wrong! delete the first namespace in FreeThisNameSpace in symboltable.c\n");
+		return;/*printf("Wrong! delete the first namespace in FreeThisNameSpace in symboltable.c\n");*/
 
 	NameFieldStruct* p = NameSpace;
 	NameSpace = NameSpace->next;
@@ -218,34 +222,35 @@ void AddToSymbolTable(VarObject* item)
 
 
 
-////Tool开头是工具
+/*Tool开头是工具*/
 void ToolDeleteValHashTable(ValHashTable* item)
 {
 	char* name = item->val->name;
 	unsigned int key = pjwhash(name);
-	ValHashTable*queue = vtable[key];
+	ValHashTable *queue = vtable[key];
 	if(queue == item)
-	{
-		//第一个
+	{	/*第一个*/
 		if(CurrentDept != item->depth)
-			return;//;printf("Wrong in ToolDeleteValHashTable in symboltable.c");
+			return;/*;printf("Wrong in ToolDeleteValHashTable in symboltable.c");*/
+		free(item);//.
 		vtable[key] = NULL;
 	}
 	else
-	{
-		//不在第一个
+	{	/*不在第一个*/
 		while(queue != NULL && queue->indexNext != item)
 		{
 			queue = queue->indexNext;
 		}
 		if(queue == NULL)
-			return;//printf("Can't Find！Wrong in ToolDeleteValHashTable in symboltable.c");
+			return;/*printf("Can't Find！Wrong in ToolDeleteValHashTable in symboltable.c");*/
 		queue->indexNext = item->indexNext;
+		free(item);//.
 	}
-	//printf("Begin Delete ValHashTable!");
+	/*printf("Begin Delete ValHashTable!");*/
 
 }
 
+/*
 void ToolFreeType(Type type)
 {
 	switch (type->kind)
@@ -280,4 +285,4 @@ void ToolFreeVarObject(VarObject* item)
 	free(name);
 	ToolFreeType(item->type);
 	free(item);
-}
+}*/

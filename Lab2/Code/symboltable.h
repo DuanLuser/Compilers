@@ -94,7 +94,7 @@ typedef struct NameFieldStruct
 	NameFieldStruct* next;
 } namesfield;
 
-//这里负责有关命名空间的处理
+/*这里负责有关命名空间的处理*/
 //作用域
 NameFieldStruct* NameSpace;
 unsigned int CurrentDept;
@@ -111,11 +111,11 @@ extern void initSymbolTable();
 
 //Tool工具，不重要可不看
 extern void ToolDeleteValHashTable(ValHashTable* item);
-//extern void ToolFreeValHashTable(ValHashTable*item);
+/*extern void ToolFreeValHashTable(ValHashTable*item);
 extern void ToolFreeType(Type type);
 extern void ToolFreeFieldList(FieldList flist);
 extern void ToolFreeVarObject(VarObject* item);
-
+*/
 #endif
 
 
