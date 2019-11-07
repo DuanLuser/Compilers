@@ -671,7 +671,7 @@ VarObject* Exp(TreeNode* p)//!
 			if (exp->lvalue == false)
 			{
 				printf("Error type %d at Line %d: The left-hand side of an assignment must be a variable.\n", 6, q->next->line);
-				return newVar(false);
+				return exp;
 			}
 			//2. 判断exp与exp1的类型是否相同
 			bool equal = typeEqual(exp->type, exp1->type);

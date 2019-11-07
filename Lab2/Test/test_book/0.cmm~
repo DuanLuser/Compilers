@@ -11,6 +11,6 @@ struct B{
 int main()
 {
 	float x = 1.0;
-	int y = 1.0;
+	int y = 1;
 	y = 5.0 = x;
 }
