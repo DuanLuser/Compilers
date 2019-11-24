@@ -6,6 +6,7 @@
 
 //FieldList structure中的structure需要提前分配空间
 bool FuncRedefine;//函数重定义
+int tempCount, labelCount;
 
 Type newType()
 {
@@ -118,6 +119,8 @@ Type CheckInStructure(Type st, char* name)
 
 void traverseTree(TreeNode* root)
 {
+	tempCount=0; 
+	labelCount=0;
 	initSymbolTable();
 	Program(root);
 }
@@ -179,6 +182,15 @@ void ExtDef(TreeNode* p) //not Done-> the last "CompSt(q->next->next);"
 			fitem->func = fundec;//!会不会有指针副作用
 			fitem->indexNext = NULL;
 			AddToFuncHashTable(fitem);//insert
+			//lab3
+			insertFuncName(fundec->name);
+			vector *arg=fundec->args->next;
+			while(arg)
+			{
+				if(arg->val)
+					insertFuncParam(arg->val->name);
+				arg=arg->next;
+			}			
 		}
 		//else	return; 函数重复定义，依旧建议继续处理
 		
@@ -200,8 +212,8 @@ void ExtDecList(TreeNode* p, Type specifier, vector *extdeclist)//Done
 	if (child->nodetype == TYPE_VarDec)
 	{
 		Type Array = NULL;//用于判断VarDec层，是否第一个便为ID；否则需按照数组处理
-		//ExtDecList -> VarDec ExtDecList, and check VarDec all in symbol table
-		VarDec(child, specifier, extdeclist, Array, NULL);
+		//ExtDecList -> VarDec ExtDecList
+		VarDec(child, specifier, extdeclist, Array, NULL);//st=NULL
 	}
 	//if ExtDecList-> VarDec COMMA ExtDecList
 	if (p->lastChild != NULL && p->lastChild->nodetype == TYPE_ExtDecList)
@@ -244,11 +256,8 @@ Type StructSpecifier(TreeNode* p)//Done
 		if (q->next->nodetype == TYPE_OptTag)
 		{
 			vexist = CheckInValHashTable(q->next->firstChild->value, true);
-			//FuncObject* fexist = CheckInFuncHashTable(q->next->firstChild->value);
 			if (vexist == NULL)
 			{
-				//st->name = (char*)malloc(Length * sizeof(char));
-				//strcpy(st->name, s->value);//将OptTag的ID赋给结构体名称
 				st->name = s->value;
 				sexist = CheckInVtableForStruct(st->name);//针对A_16.cmm的解读,检查变量是否与结构体名重复
 				if (!q->next->next || q->next->next->nodetype != TOKEN_LC)	return NULL;
@@ -276,15 +285,13 @@ Type StructSpecifier(TreeNode* p)//Done
 		type->u.structure = st;
 
 		VarObject* val = (VarObject*)malloc(sizeof(VarObject));
-		//val->name = (char*)malloc(Length * sizeof(char));
-		//strcpy(val->name, type->u.structure->name);
 		val->name = type->u.structure->name;//赋值结构体名称；则判断结构体是否相同时--名字同
 		val->type = type;
 		if(vexist == NULL && sexist == NULL)
 			AddToSymbolTable(val);//将结构体插入vtable
 		else
 		{
-			//报错重复定义;return NULL ? 还是return哈希表中已有的类型
+			//报错重复定义; return NULL ? 还是return哈希表中已有的类型
 			printf("Error type %d at Line %d: Duplicated name \"%s\".\n", 16,s->line, s->value);
 			return newType();//or type ?
 		}
@@ -293,12 +300,10 @@ Type StructSpecifier(TreeNode* p)//Done
 	}
 	else if (q->next && q->next->nodetype == TYPE_Tag) //define variables WITH the defined structure, find
 	{
-		//"find type with the name in the vtable"; check error 17
 		VarObject* structure = CheckInValHashTable(q->next->firstChild->value, false);//strict先赋值false
 		if (structure == NULL)
 		{
-			//报错结构体未定义
-			printf("Error type %d at Line %d: Undefined structure \"%s\".\n", 17, q->next->firstChild->line, q->next->firstChild->value);
+			printf("Error type %d at Line %d: Undefined structure \"%s\".\n", 17, q->next->firstChild->line, q->next->firstChild->value);//check error 17:结构体未定义
 			return newType();
 		}
 		return structure->type;
@@ -317,20 +322,21 @@ void VarDec(TreeNode* p, Type specifier, vector *list, Type Array, FieldList st)
 	if (q == NULL) return;
 	if (q->nodetype == TOKEN_ID)
 	{
-		//TODO: check TOKEN_ID is in symbol table
-		//Add or report error
+		//TODO: check TOKEN_ID is in symbol table, Add or report error
 		//首先check 该变量在同一深度是否已经存在，错误3
-
 		vector* vardec = (vector*)malloc(sizeof(vector));
 		vardec->val = (VarObject*)malloc(sizeof(VarObject));
-		//vardec->val->name = (char*)malloc(Length * sizeof(char));
-		//strcpy(vardec->val->name, q->value);
 		vardec->val->name = q->value;
 		vardec->next = vardec->last = NULL;
 		if (Array == NULL)//not array
 			vardec->val->type = specifier;
 		else
+		{
 			vardec->val->type = Array;
+			//lab3  数组
+			if(st==NULL)//不是结构体内部的数组
+				insertFields(q->value,computeSize(Array));
+		}
 		//插入 list
 		list->last->next = vardec;
 		list->last = vardec;
@@ -340,11 +346,9 @@ void VarDec(TreeNode* p, Type specifier, vector *list, Type Array, FieldList st)
 		if (sexist == NULL &&vexist == NULL)
 		{
 			AddToSymbolTable(vardec->val);
-			if (st != NULL)
+			if (st != NULL)//结构体
 			{
 				FieldList field = (FieldList)malloc(sizeof(FieldList_));
-				//field->name = (char*)malloc(Length * sizeof(char));
-				//strcpy(field->name, vardec->val->name);
 				field->name = q->value;
 				field->type = vardec->val->type;
 				field->tail = NULL;
@@ -376,8 +380,7 @@ void VarDec(TreeNode* p, Type specifier, vector *list, Type Array, FieldList st)
 	{
 		if (q->next->next->nodetype != TOKEN_INT)
 		{
-			//报错12
-			printf("Error type %d at Line %d: \"%s\" is not an integer.\n", 12, q->next->next->line, q->next->next->value);
+			printf("Error type %d at Line %d: \"%s\" is not an integer.\n", 12, q->next->next->line, q->next->next->value);//报错12
 			return;
 		}
 		//如果不存在错误，则	
@@ -415,9 +418,7 @@ void FunDec(TreeNode* p, FuncObject *fundec)//Done
 		ErrorGenerator("Wrong in FunDec! No children!");
 		return;
 	}
-	//fundec->name = (char*)malloc(Length * sizeof(char));
-	//strcpy(fundec->name, funcName->value);//确定函数名
-	fundec->name = funcName->value;
+	fundec->name = funcName->value;//确定函数名
 	//VarObject* vexist=CheckInValHashTable(funcName->value, false);
 	FuncObject* fexist = CheckInFuncHashTable(funcName->value);
 	if (fexist != NULL)
@@ -442,13 +443,11 @@ void VarList(TreeNode* p, FuncObject *fundec, int index)//Done
 	if (p == NULL) return;
 	if (p->firstChild == p->lastChild)
 	{
-		//说明是Varist->ParamDec
-		ParamDec(p->firstChild, fundec->args, index);
+		ParamDec(p->firstChild, fundec->args, index);//Varist->ParamDec
 	}
 	else
 	{
-		//说明是VarList->ParamDec COMMA VarList
-		ParamDec(p->firstChild, fundec->args, index);
+		ParamDec(p->firstChild, fundec->args, index);//VarList->ParamDec COMMA VarList
 		VarList(p->lastChild, fundec, index + 1);
 	}
 
@@ -507,7 +506,7 @@ void Stmt(TreeNode* p, Type rtype)
 	{
 	case TYPE_Exp:
 	{
-		exp = Exp(q);
+		exp = Exp(q,NULL);
 	}
 	break;
 	case TYPE_CompSt:
@@ -516,44 +515,53 @@ void Stmt(TreeNode* p, Type rtype)
 	}
 	break;
 	case TOKEN_RETURN:
-	{/*检查有关return返回值的问题 作用域栈也要保存返回值*/
-		exp = Exp(q->next);//获得返回的表达式的值，判断类型是否符合rtype
+	{
+		Operand t1= newTemp(tempCount++);
+		exp = Exp(q->next, t1);//获得返回的表达式的值，判断类型是否符合rtype
 		bool equal = typeEqual(exp->type, rtype);
 		if (!equal)
 		{
 			printf("Error type %d at Line %d: Type mismatched for return.\n", 8, q->line);
 			return;
 		}
+		insertReturn(t1);
 	}
 	break;
 	case TOKEN_IF:
-	{/*检查有关if的问题 作用域栈也要保存返回值*/
-		TreeNode* r = q->next->next;
-		exp = Exp(r);
-		if (exp->type->kind != BASIC || exp->type->u.basic != 0)
-		{
-			//错误7 操作符类型不匹配
-			printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, q->line);
-		}
+	{
+		TreeNode* r = q->next->next;//Exp
+		Operand label1=newLabel(labelCount++);
+		Operand label2=newLabel(labelCount++);
+		exp = translate_Cond(r, label1, label2);//code1
+		insertLabel(label1);//label1
 		//提取后续的Stmt
 		TreeNode* s = r->next->next;
-		Stmt(s, rtype);
+		Stmt(s, rtype);//code2
 		if (s->next && s->next->nodetype == TOKEN_ELSE)
-			Stmt(s->next->next, rtype);
-
+		{
+			Operand label3=newLabel(labelCount++);
+			insertGotoLabel(label3);//goto label3
+			insertLabel(label2);//label2
+			Stmt(s->next->next, rtype);//code3
+			insertLabel(label3);//label3
+		}
+		else
+			insertLabel(label2);//label2
 	}
 	break;
 	case TOKEN_WHILE:
-	{/*检查有关while的问题 作用域栈也要保存返回值*/
-		TreeNode* r = q->next->next;
-		exp = Exp(r);
-		if (exp->type->kind != BASIC || exp->type->u.basic != 0)
-		{
-			//错误7 操作符类型不匹配
-			printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, q->line);
-		}
+	{
+		TreeNode* r = q->next->next;//Exp
+		Operand label1=newLabel(labelCount++);
+		Operand label2=newLabel(labelCount++);
+		Operand label3=newLabel(labelCount++);
+		insertLabel(label1);//label1
+		exp=translate_Cond(r, label2, label3);//code1
 		//提取后续的Stmt
-		Stmt(r->next->next, rtype);
+		insertLabel(label2);//label2
+		Stmt(r->next->next, rtype);//code2
+		insertGotoLabel(label1);//goto label1
+		insertLabel(label3);//label3
 	}
 	break;
 	default:
@@ -635,7 +643,9 @@ void Dec(TreeNode* p, Type specifier, vector *declist, FieldList st)
 					printf("Error type %d at Line %d: Struct variables cannot be initialized.\n", 15, q->next->line);
 					return;
 				}
-				exp = Exp(q->next->next);
+				//lab3				
+				Operand right = newTemp(tempCount++);
+				exp = Exp(q->next->next, right);
 				//将exp与declist的最后一个进行类型判断，并可以考虑赋值等操作
 				bool equal = typeEqual(declist->last->val->type, exp->type);
 				if (!equal)
@@ -643,6 +653,7 @@ void Dec(TreeNode* p, Type specifier, vector *declist, FieldList st)
 					printf("Error type %d at Line %d: Type mismatched for assignment.\n", 5, q->next->line);
 					return;
 				}
+				insertAssignLID(declist->last->val->name, right);
 			}
 		}
 	}
@@ -651,28 +662,31 @@ void Dec(TreeNode* p, Type specifier, vector *declist, FieldList st)
 
 
 /*(6) Expressions*/  //TO BE CONTINUE
-VarObject* Exp(TreeNode* p)//!
+VarObject* Exp(TreeNode* p, Operand place)//!
 {
 	if (p == NULL)	return NULL;
 	TreeNode* q = p->firstChild;
 	if (q == NULL)	return NULL;
 	if (q->nodetype == TYPE_Exp)
 	{
-		VarObject* exp = Exp(q);
+		VarObject* exp = NULL;//Exp(q);!!
 		VarObject* exp1 = NULL;
 		if (q->next == NULL)	return NULL;
 		TreeNode* r = q->next->next;
 		switch (q->next->nodetype)//match or not, important
 		{
 		case TOKEN_ASSIGNOP: {
-			if (r == NULL)	return NULL;
-			exp1 = Exp(r);
+			Operand leftExp = newTemp(tempCount++);
+			exp = Exp(q, leftExp);
 			//1. 判断exp是否为右值表达式
 			if (exp->lvalue == false)
 			{
 				printf("Error type %d at Line %d: The left-hand side of an assignment must be a variable.\n", 6, q->next->line);
 				return exp;
 			}
+			if (r == NULL)	return NULL;
+			Operand rightExp = newTemp(tempCount++);
+			exp1 = Exp(r, rightExp);
 			//2. 判断exp与exp1的类型是否相同
 			bool equal = typeEqual(exp->type, exp1->type);
 			if (!equal)
@@ -680,53 +694,59 @@ VarObject* Exp(TreeNode* p)//!
 				printf("Error type %d at Line %d: Type mismatched for assignment.\n", 5, q->next->line);
 				return newVar(false);
 			}
+			insertAssignLOP(leftExp, rightExp);
+			if(place!=NULL)
+				insertAssignLOP(place, rightExp);
 			return exp1;//需要补充赋值过程
 		}break;
 		case TOKEN_AND:
-		case TOKEN_OR: {
-			if (r == NULL)	return NULL;
-			exp1 = Exp(r);
-			//判断exp与exp1是否都为int
-			if ((exp->type->kind != BASIC || exp->type->u.basic != 0) || (exp1->type->kind != BASIC || exp1->type->u.basic != 0))
-			{
-				//错误7 操作符类型不匹配
-				printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, q->next->line);
-				return newVar(false);
-			}
-			VarObject* tmp = newVarObject(0);
-			tmp->type->u.basic = 0;
-			//tmp->u.value计算 
-			tmp->lvalue = false;
-			return tmp;
-		}break;
-		case TOKEN_RELOP: {
-			if (r == NULL)	return NULL;
-			exp1 = Exp(r);
-			//判断exp与exp1是否都为int或float
-			if (exp->type->kind != BASIC || exp1->type->kind != BASIC || exp->type->u.basic != exp1->type->u.basic)
-			{
-				//错误7 操作符类型不匹配
-				printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, q->next->line);
-				return newVar(false);
-			}
-			VarObject* tmp = newVarObject(0);
-			tmp->type->u.basic = 0;
-			//tmp->u.value计算 ;RELOP中：true返回非0，false返回0
-			tmp->lvalue = false;
-			return tmp;
+		case TOKEN_OR: 
+		case TOKEN_RELOP: {//to be !!
+			Operand label1=newLabel(labelCount++);
+			Operand label2=newLabel(labelCount++);
+			Operand constant=(Operand)malloc(sizeof(struct Operand_));
+			constant->kind=CONST;
+			constant->u.val=(char*)malloc(2);
+			strcpy(constant->u.val,"0");	
+			if(place!=NULL)
+				insertAssignLOP(place, constant);//code0
+			exp=translate_Cond(p, label1, label2);//!
+			insertLabel(label1);//label1
+			Operand constant1=(Operand)malloc(sizeof(struct Operand_));
+			constant1->kind=CONST;
+			constant1->u.val=(char*)malloc(2);
+			strcpy(constant1->u.val,"1");	
+			if(place!=NULL)
+				insertAssignLOP(place, constant1);	//code2		
+			insertLabel(label2);//label2
 		}break;
 		case TOKEN_PLUS:
 		case TOKEN_MINUS:
 		case TOKEN_STAR:
 		case TOKEN_DIV: {
+			Operand t1= newTemp(tempCount++);
+			Operand t2= newTemp(tempCount++);
+			exp = Exp(q, t1);
 			if (r == NULL)	return NULL;
-			exp1 = Exp(r);
+			exp1 = Exp(r, t2);
 			//判断exp与exp1是否都为int或float
 			if (exp->type->kind != BASIC || exp1->type->kind != BASIC || exp->type->u.basic != exp1->type->u.basic)//!
 			{
 				printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, q->next->line);
 				return newVar(false);
 			}
+			int kind=-1;
+			if(q->next->nodetype==TOKEN_PLUS)
+				kind=11;//ADD
+			else if(q->next->nodetype==TOKEN_MINUS)
+				kind=12;//SUB
+			else if(q->next->nodetype==TOKEN_STAR)
+				kind=13;//MUL
+			else if(q->next->nodetype==TOKEN_DIV)
+				kind=14;//DIV
+			if(place!=NULL&&kind!=-1)
+				insertBinop(place, t1, t2, kind);
+
 			VarObject* tmp = newVarObject(0);
 			tmp->type->u.basic = exp->type->u.basic;//0或者1
 			//tmp->u.value计算
@@ -734,19 +754,16 @@ VarObject* Exp(TreeNode* p)//!
 			return tmp;
 		}break;
 		case TOKEN_LB: {
-			//判断exp是否为数组型
-			if (exp->type->kind != ARRAY)
+			if (exp->type->kind != ARRAY)//判断exp是否为数组型
 			{
 				printf("Error type %d at Line %d: \"%s\" is not an array.\n", 10, q->next->line, exp->name);
 				return exp;//不为数组，直接返回该变量
 			}
 			if (r == NULL)	return NULL;
-			exp1 = Exp(r);
-			//判断exp1是否为int型
-			if (exp1->type->kind != BASIC || exp1->type->u.basic != 0)
+			exp1 = Exp(r,place);//to be ..
+			if (exp1->type->kind != BASIC || exp1->type->u.basic != 0)//判断exp1是否为int型
 			{
-				//报错12
-				printf("Error type %d at Line %d: The number in %s \"[]\" is not an integer.\n", 12, q->next->line, exp->name);
+				printf("Error type %d at Line %d: The number in %s \"[]\" is not an integer.\n", 12, q->next->line, exp->name);//报错12
 				//虽然不是整数，但还是要返回数组中的类型
 			}
 			if (r->next == NULL)	return NULL;	//RB
@@ -756,7 +773,7 @@ VarObject* Exp(TreeNode* p)//!
 			tmp->lvalue = true;
 			return tmp;
 		}break;
-		case TOKEN_DOT: {
+		case TOKEN_DOT: {//要求3.1, 不予考虑
 			//判断exp是否为结构体，是则返回该结构体中的域
 			if (exp->type->kind != STRUCTURE)
 			{
@@ -772,10 +789,6 @@ VarObject* Exp(TreeNode* p)//!
 				return newVar(true);
 			}
 			VarObject* tmp = newVar(true);
-			//tmp->name = (char*)malloc(3 * Length * sizeof(char));//(名字为结构体变量名字+'.'+)域名，如 x.y;
-			/*strcpy(tmp->name, exp->name);
-			strcat(tmp->name, ".");
-			strcat(tmp->name, r->value);*/// 可能会出错
 			tmp->name = r->value;
 			tmp->type = fieldType;
 			tmp->lvalue = true;
@@ -788,32 +801,54 @@ VarObject* Exp(TreeNode* p)//!
 	else if (q->nodetype == TOKEN_LP)
 	{
 		//表示（exp）
-		return Exp(q->next);
+		return Exp(q->next, place);
 	}
 	else if (q->nodetype == TOKEN_MINUS)//需要判断是否为int或者float--未进行 11.16
 	{
 		//表示exp-> -exp
-		VarObject* right = Exp(q->next);
-		//转成负号返回即可
-		//TODO:对right 值操作
+		Operand t1= newTemp(tempCount++);
+		VarObject* right = Exp(q->next, t1);
+		if (right->type->kind != BASIC)//!
+		{
+			printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, q->line);
+			return newVar(false);
+		}
+		Operand constant=(Operand)malloc(sizeof(struct Operand_));
+		constant->kind=CONST;
+		constant->u.val=(char*)malloc(2);
+		strcpy(constant->u.val,"0");
+		if(place!=NULL)
+			insertBinop(place, constant, t1, 12);//SUB
 		right->lvalue = false;
 		return right;
 	}
 	else if (q->nodetype == TOKEN_NOT)//需要判断是否为int--未进行 11.16 
 	{
+		Operand label1=newLabel(labelCount++);
+		Operand label2=newLabel(labelCount++);
+		Operand constant=(Operand)malloc(sizeof(struct Operand_));
+		constant->kind=CONST;
+		constant->u.val=(char*)malloc(2);
+		strcpy(constant->u.val,"0");	
+		if(place!=NULL)
+			insertAssignLOP(place, constant);//code0
+		VarObject* right=translate_Cond(p, label1, label2);//!
+		insertLabel(label1);//label1
+		Operand constant1=(Operand)malloc(sizeof(struct Operand_));
+		constant1->kind=CONST;
+		constant1->u.val=(char*)malloc(2);
+		strcpy(constant1->u.val,"1");	
+		if(place!=NULL)
+			insertAssignLOP(place, constant1);	//code2		
+		insertLabel(label2);//label2
 		//表示exp-> ！exp
-		VarObject* right = Exp(q->next);
-		//转成正确的类型返回即可
-		//TODO:对right 值操作
 		right->lvalue = false;
 		return right;
 	}
 	else if (q->nodetype == TOKEN_ID)
 	{
 		VarObject* tmp = NULL;
-		//构建常量ID
-		//TODO：检查符号表中是否有该ID，是否已经定义
-		//接下来可能是ID(Args)或者ID()
+		//TODO：检查符号表中是否有该ID，是否已经定义; 接下来可能是ID(Args)或者ID()
 		if (q->next)
 		{
 			//从函数表中获取该name(函数名)对应的信息，利用返回值构建tmp
@@ -834,10 +869,13 @@ VarObject* Exp(TreeNode* p)//!
 			{
 				//ID（Args）,得到参数列表
 				int index = 1;
-				vector *args = CreateVector();//
+				vector *args = CreateVector();
 				args->last = args;
-
-				Args(q->next->next, args, index);
+				
+				OperandList* Arg_list=(OperandList*)malloc(sizeof(OperandList));//头节点
+				Arg_list->op=NULL;
+				Arg_list->next=NULL;
+				Args(q->next->next, args, index, Arg_list);//code1
 				//检查参数列表类型是否符合符号表
 				int nonequal = 0;
 				if (args->last->index != fexist->args->last->index)
@@ -858,9 +896,24 @@ VarObject* Exp(TreeNode* p)//!
 				}
 				if (nonequal)
 				{
-					//printf("fact:%d, func:%d\n",args->last->index,fexist->args->last->index);
 					printf("Error type %d at Line %d: Function \"%s\" is not applicable for arguments.\n", 9, q->line, q->value);
 					//return newVar(false);  出错时还是返回原来函数的返回类型
+				}
+				if(strcmp(fexist->name,"write")==0)
+				{
+					insertWritefunc(Arg_list->next->op);//arg[1]
+				}
+				else
+				{
+					OperandList* p=Arg_list->next;
+					while(p!=NULL)
+					{
+						Operand arg=p->op;
+						if(arg!=NULL)
+							insertFuncArgs(arg);
+						p=p->next;
+					}
+					insertCall(place, fexist->name);
 				}
 			}
 			else
@@ -871,6 +924,11 @@ VarObject* Exp(TreeNode* p)//!
 					printf("Error type %d at Line %d: Function \"%s\" is not applicable for arguments.\n", 9, q->line, q->value);
 					//return newVar(false);  出错时还是返回原来函数的返回类型
 				}
+				//lab3
+				if(strcmp(fexist->name,"read")==0)
+					insertReadfunc(place);
+				else
+					insertCall(place, fexist->name);
 			}
 			tmp = (VarObject*)malloc(sizeof(VarObject));
 			//tmp->name=NULL;
@@ -886,6 +944,9 @@ VarObject* Exp(TreeNode* p)//!
 				printf("Error type %d at Line %d: Undefined variable \"%s\".\n", 1, q->line, q->value);
 				return newVar(true);;
 			}
+			place->kind=VAR;
+			place->u.val=q->value;		
+
 			tmp = vexist;
 			tmp->lvalue = true;
 			return tmp;
@@ -896,25 +957,25 @@ VarObject* Exp(TreeNode* p)//!
 	{
 		VarObject* tmp = newVarObject(0);
 		if (q->nodetype == TOKEN_INT)
-		{
 			tmp->type->u.basic = 0;
-			//tmp->type->value.intValue=atoi(q->value);
-		}
 		else
-		{
 			tmp->type->u.basic = 1;
-			//tmp->type->value.floatValue=atof(q->value);
+		if(place!=NULL)
+		{
+			place->kind=CONST;
+			place->u.val=q->value;
 		}
 		tmp->lvalue = false;
 		return tmp;
 	}
 }
 
-void Args(TreeNode* p, vector* args, int index)
+void Args(TreeNode* p, vector* args, int index, OperandList* Arg_list)
 {
 	if (p->firstChild && p->firstChild->nodetype == TYPE_Exp)
 	{
-		VarObject* arg = Exp(p->firstChild);
+		Operand t1= newTemp(tempCount++);
+		VarObject* arg = Exp(p->firstChild, t1);
 		vector* vitem = (vector*)malloc(sizeof(vector));
 		vitem->index = index;
 		vitem->val = arg;
@@ -922,10 +983,115 @@ void Args(TreeNode* p, vector* args, int index)
 		//将arg加入到args中
 		args->last->next = vitem;
 		args->last = vitem;
+		
+		OperandList* Arg=(OperandList*)malloc(sizeof(OperandList));
+		Arg->op=t1;
+		Arg->next=Arg_list->next;
+		Arg_list->next=Arg;
 	}
 	if (p->lastChild && p->lastChild->nodetype == TYPE_Args)
 	{
-		Args(p->lastChild, args, index + 1);//接着添加下一个参数
+		Args(p->lastChild, args, index + 1, Arg_list);//接着添加下一个参数
 	}
 
 }
+
+//lab3
+VarObject* translate_Cond(TreeNode* p, Operand labelTrue, Operand labelFalse)
+{
+	if (p == NULL)	return NULL;
+	TreeNode *q = p->firstChild;//Exp1
+	if (q->nodetype == TYPE_Exp)
+	{
+		TreeNode *r=q->next, *s=q->next->next;//relop, Exp2
+		switch (r->nodetype)//match or not, important
+		{
+		case TOKEN_RELOP: {
+			Operand t1= newTemp(tempCount++);
+			Operand t2= newTemp(tempCount++);
+			VarObject* exp1=Exp(q,t1);
+			VarObject* exp2=Exp(s,t2);	
+			if(exp1==NULL||exp2==NULL) return NULL;
+			insertGotoLabelTrue(t1, t2, labelTrue, r->value);
+			insertGotoLabel(labelFalse);
+			if (exp1->type->kind != BASIC || exp2->type->kind != BASIC || exp1->type->u.basic != exp2->type->u.basic)
+			{
+				//错误7 操作符类型不匹配
+				printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, r->line);
+				return newVar(false);
+			}
+			VarObject* tmp = newVarObject(0);
+			tmp->type->u.basic = 0;
+			tmp->lvalue = false;
+			return tmp;
+
+		}break;
+		case TOKEN_AND: {
+			Operand label1=newLabel(labelCount++);
+			VarObject* exp1=translate_Cond(q, label1, labelFalse);
+			insertLabel(label1);
+			VarObject* exp2=translate_Cond(s, labelTrue, labelFalse);
+			if(exp1==NULL||exp2==NULL) return NULL;
+			if ((exp1->type->kind != BASIC || exp1->type->u.basic != 0) || (exp2->type->kind != BASIC || exp2->type->u.basic != 0))
+			{
+				//错误7 操作符类型不匹配
+				printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, r->line);
+				return newVar(false);
+			}
+			VarObject* tmp = newVarObject(0);
+			tmp->type->u.basic = 0;
+			tmp->lvalue = false;
+			//计算tmp->value
+			return tmp;
+
+		}break;
+		case TOKEN_OR: {
+			Operand label1=newLabel(labelCount++);
+			VarObject* exp1=translate_Cond(q, labelTrue, label1);
+			insertLabel(label1);
+			VarObject* exp2=translate_Cond(s, labelTrue, labelFalse);
+			if(exp1==NULL||exp2==NULL) return NULL;
+			if ((exp1->type->kind != BASIC || exp1->type->u.basic != 0) || (exp2->type->kind != BASIC || exp2->type->u.basic != 0))
+			{
+				//错误7 操作符类型不匹配
+				printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, r->line);
+				return newVar(false);
+			}
+			VarObject* tmp = newVarObject(0);
+			tmp->type->u.basic = 0;
+			tmp->lvalue = false;
+			//计算tmp->value
+			return tmp;
+		}break;
+		default: break;
+		}
+	}
+	else if(q->nodetype == TOKEN_NOT)
+	{
+		TreeNode* r=q->next;//Exp1
+		VarObject* exp1=translate_Cond(r, labelFalse, labelTrue);
+		if(exp1==NULL) return NULL;
+		if(exp1->type->kind != BASIC || exp1->type->u.basic != 0)
+		{
+			//错误7 操作符类型不匹配
+			printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, q->line);
+			return newVar(false);
+		}
+		exp1->lvalue = false;
+		return exp1;
+	}
+	else
+	{
+		Operand t1= newTemp(tempCount++);
+		VarObject* object=Exp(p,t1);
+		Operand constant=(Operand)malloc(sizeof(struct Operand_));
+		constant->kind=CONST;
+		constant->u.val=(char*)malloc(2);
+		strcpy(constant->u.val,"0");
+		insertGotoLabelTrue(t1, constant, labelTrue,"!=");
+		insertGotoLabel(labelFalse);
+		return object;
+	}
+}
+
+
