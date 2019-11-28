@@ -20,7 +20,7 @@ typedef struct Operand_
 	union {
 		int no;
 		char *val;//func, const, var
-		//Operand addr; //?
+		//Operand addr; //
 	} u;
 } Operand_;
 

@@ -17,6 +17,20 @@ void insertInterCode(InterCodes *code)
 	}
 }
 
+/*void deleteInterCode(InterCodes *Code)
+{
+	InterCodes *p=Code->prev;
+	while(p!=NULL)
+	{
+		int tempno=-1;
+		if(Code->kind==9&&Code->code.u.assign.right->kind==3)
+		{
+			
+		}
+	}
+	deleteCode(code);
+}*/
+
 void deleteInterCode(InterCodes *code)
 {
 	if(code==NULL || head==NULL) return;
@@ -265,7 +279,7 @@ char* trans(Operand op)
 				strcpy(result, "#");
 				strcat(result, op->u.val);
 				return result;};break;
-		case 2:break;//?
+		case 2:
 		case 3:{char* result=malloc(30);
 				strcpy(result, "myvar");
 				char* buffer = malloc(sizeof(char) * 30);

@@ -1,0 +1,26 @@
+FUNCTION main :
+t := #3
+x := #12
+myvar5 := x * x
+myvar4 := myvar5 + #13
+b := myvar4
+myvar11 := b / #13
+myvar10 := myvar11 + #1
+y := myvar10
+myvar17 := x / b
+myvar18 := b * y
+myvar16 := myvar17 + myvar18
+z := myvar16
+WRITE z
+myvar27 := z * #2
+myvar25 := t + myvar27
+c := myvar25
+WRITE c
+myvar37 := x + b
+myvar35 := myvar37 + y
+myvar36 := x / c
+myvar33 := myvar35 + myvar36
+myvar32 := myvar33 + t
+t := myvar32
+WRITE t
+RETURN #0

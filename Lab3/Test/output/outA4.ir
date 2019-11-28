@@ -1,0 +1,67 @@
+FUNCTION main :
+DEC x 20
+i := #0
+LABEL mylabel0 :
+IF i < #5 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar7 := #4 * i
+myvar4 := &x + myvar7
+READ myvar9
+*myvar4 := myvar9
+myvar12 := i + #1
+i := myvar12
+GOTO mylabel0
+LABEL mylabel2 :
+i := #1
+LABEL mylabel3 :
+IF i < #5 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+j := i
+LABEL mylabel6 :
+IF j > #0 GOTO mylabel9
+GOTO mylabel8
+LABEL mylabel9 :
+myvar26 := j - #1
+myvar29 := #4 * myvar26
+myvar23 := &x + myvar29
+myvar33 := #4 * j
+myvar24 := &x + myvar33
+IF *myvar23 > *myvar24 GOTO mylabel7
+GOTO mylabel8
+LABEL mylabel7 :
+myvar41 := #4 * j
+myvar38 := &x + myvar41
+tem := *myvar38
+myvar47 := #4 * j
+myvar44 := &x + myvar47
+myvar51 := j - #1
+myvar54 := #4 * myvar51
+myvar49 := &x + myvar54
+*myvar44 := *myvar49
+myvar60 := j - #1
+myvar63 := #4 * myvar60
+myvar58 := &x + myvar63
+*myvar58 := tem
+myvar68 := j - #1
+j := myvar68
+GOTO mylabel6
+LABEL mylabel8 :
+myvar72 := i + #1
+i := myvar72
+GOTO mylabel3
+LABEL mylabel5 :
+i := #0
+LABEL mylabel10 :
+IF i < #5 GOTO mylabel11
+GOTO mylabel12
+LABEL mylabel11 :
+myvar82 := #4 * i
+myvar79 := &x + myvar82
+WRITE *myvar79
+myvar86 := i + #1
+i := myvar86
+GOTO mylabel10
+LABEL mylabel12 :
+RETURN #0

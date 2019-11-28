@@ -149,7 +149,6 @@ void traverseTree(TreeNode* root)
 	fromVarList=false;
 	initSymbolTable();
 	Program(root);
-	deleteRedundantAssign();
 }
 
 void ErrorGenerator(char* str)
