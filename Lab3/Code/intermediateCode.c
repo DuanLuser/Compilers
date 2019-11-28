@@ -341,12 +341,83 @@ void printInterCodes(FILE *fw)
 
 //优化  删除没用到的赋值语句，直接计算常数，
 
+bool valEqual(char *name, Operand x)
+{
+	if((x->kind>1&&x->kind<5)||x->kind==6)
+		return false;
+	if(!strcmp(name,x->u.val))
+		return true;
+	return false;
+}
+
 void deleteRedundantAssign()
 {
 	InterCodes *p=head;
-	if(p->code.kind==ASSIGN)
+	while(p!=NULL)
 	{
-		//char* var=p->code.u.assign.left->
+		if(p->code.kind!=ASSIGN&&(p->code.kind<11||p->code.kind>14))// var := ...
+		{
+			p=p->next;continue;
+		}
+		char* varName=NULL;
+		if(p->code.kind==ASSIGN&&p->code.u.assign.left->kind==0)
+			varName=p->code.u.assign.left->u.val;
+		else if(p->code.u.binop.result->kind==0)
+			varName=p->code.u.binop.result->u.val;
+		if(varName==NULL)
+		{	
+			p=p->next;continue;	
+		}
+		InterCodes *q=p->next;
+		int flag=0;	//是否用到了该变量名
+		while(q!=NULL)
+		{
+			if(q->code.kind>0&&q->code.kind<9)
+			{
+				flag=1;break;
+			}
+			else if((q->code.kind>8&&q->code.kind<11)||q->code.kind>15)
+			{
+				if(q->code.kind==10||valEqual(varName,q->code.u.assign.right))
+				{
+					flag=1;break;
+				}
+				else if(valEqual(varName,q->code.u.assign.left)&&flag==0)
+				{
+					InterCodes *r=p;
+					p=p->next;
+					deleteInterCode(r);
+					flag=2;break;
+				}
+			}
+			else if(q->code.kind>10&&q->code.kind<15)
+			{
+				if(valEqual(varName,q->code.u.binop.op1)||valEqual(varName,q->code.u.binop.op2))
+				{
+					flag=1;break;
+				}
+				else if(valEqual(varName,q->code.u.binop.result)&&flag==0)
+				{
+					InterCodes *r=p;
+					p=p->next;
+					deleteInterCode(r);
+					flag=2;break;
+				}
+			}
+			else if(q->code.kind==15)
+			{
+					flag=1;break;
+			}
+			q=q->next;
+		}
+		if(flag==0)
+		{
+			InterCodes *r=p;
+			p=p->next;
+			deleteInterCode(r);
+		}
+		else if(flag==1)
+			p=p->next;
 	}
 }
 

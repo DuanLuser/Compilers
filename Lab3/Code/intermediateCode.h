@@ -28,9 +28,9 @@ typedef struct InterCode
 {
 	enum { DEC, //0
 		   CLABEL, FUNCTION, GOTO, RETURN, ARG, PARAM, READ, WRITE,
-		   ASSIGN, CALL,
+		   ASSIGN, CALL,//9, 10
 		   ADD, SUB, MUL, DIV, //11, 12, 13, 14
-		   IFGOTO,
+		   IFGOTO,//15
 		   getaddr, getpointer,//16, 17,represent result=&op1, result=*op1
 		   pointto//18, represent *result=op1
 	} kind;
@@ -84,6 +84,7 @@ void printInterCodes(FILE *fw);
 char* trans(Operand op);
 
 int sizeofString(char *str);
+void deleteRedundantAssign();
 
 #endif
 

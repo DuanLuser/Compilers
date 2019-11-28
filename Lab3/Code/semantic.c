@@ -14,14 +14,11 @@ char* int2char(int num)
 
 int Floor(float x)
 {
-	if(x>0)
-		return (int)x;
+	if(x>0) return (int)x;
 	else
 	{
-		if(x-(int)x<-0.000001)
-			return (int)x-1;
-		else
-			return (int)x;
+		if(x-(int)x<-0.000001) return (int)x-1;
+		else return (int)x;//负整数
 	}
 }
 
@@ -152,6 +149,7 @@ void traverseTree(TreeNode* root)
 	fromVarList=false;
 	initSymbolTable();
 	Program(root);
+	deleteRedundantAssign();
 }
 
 void ErrorGenerator(char* str)
