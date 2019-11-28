@@ -1,0 +1,76 @@
+FUNCTION main :
+DEC i 20
+t := #0
+LABEL mylabel0 :
+IF t < #5 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar7 := #4 * t
+myvar4 := &i + myvar7
+READ myvar9
+*myvar4 := myvar9
+myvar12 := t + #1
+t := myvar12
+GOTO mylabel0
+LABEL mylabel2 :
+changed := #1
+LABEL mylabel3 :
+IF changed == #1 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+changed := #0
+t := #1
+LABEL mylabel6 :
+IF t < #5 GOTO mylabel7
+GOTO mylabel8
+LABEL mylabel7 :
+k := t
+LABEL mylabel9 :
+IF k > #0 GOTO mylabel12
+GOTO mylabel11
+LABEL mylabel12 :
+myvar33 := #4 * k
+myvar29 := &i + myvar33
+myvar36 := k - #1
+myvar39 := #4 * myvar36
+myvar30 := &i + myvar39
+IF *myvar29 < *myvar30 GOTO mylabel10
+GOTO mylabel11
+LABEL mylabel10 :
+myvar47 := #4 * k
+myvar44 := &i + myvar47
+tem := *myvar44
+myvar53 := #4 * k
+myvar50 := &i + myvar53
+myvar57 := k - #1
+myvar60 := #4 * myvar57
+myvar55 := &i + myvar60
+*myvar50 := *myvar55
+myvar66 := k - #1
+myvar69 := #4 * myvar66
+myvar64 := &i + myvar69
+*myvar64 := tem
+changed := #1
+myvar76 := k - #1
+k := myvar76
+GOTO mylabel9
+LABEL mylabel11 :
+myvar80 := t + #1
+t := myvar80
+GOTO mylabel6
+LABEL mylabel8 :
+GOTO mylabel3
+LABEL mylabel5 :
+t := #0
+LABEL mylabel13 :
+IF t < #5 GOTO mylabel14
+GOTO mylabel15
+LABEL mylabel14 :
+myvar90 := #4 * t
+myvar87 := &i + myvar90
+WRITE *myvar87
+myvar94 := t + #1
+t := myvar94
+GOTO mylabel13
+LABEL mylabel15 :
+RETURN #0

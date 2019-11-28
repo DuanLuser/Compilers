@@ -1,0 +1,168 @@
+FUNCTION main :
+N := #10
+DEC heap 40
+DEC result 40
+i := #0
+stop := #0
+LABEL mylabel0 :
+IF i < #10 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar8 := #4 * i
+myvar5 := &heap + myvar8
+READ myvar10
+*myvar5 := myvar10
+myvar13 := i + #1
+i := myvar13
+GOTO mylabel0
+LABEL mylabel2 :
+myvar17 := N / #2
+start := myvar17
+LABEL mylabel3 :
+IF start >= #0 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+stop := #0
+i := start
+LABEL mylabel6 :
+IF stop == #0 GOTO mylabel7
+GOTO mylabel8
+LABEL mylabel7 :
+stop := #1
+myvar32 := i * #2
+myvar31 := myvar32 + #1
+j := myvar31
+myvar38 := i * #2
+myvar37 := myvar38 + #2
+k := myvar37
+IF j < N GOTO mylabel9
+GOTO mylabel10
+LABEL mylabel9 :
+myvar48 := #4 * j
+myvar45 := &heap + myvar48
+tem1 := *myvar45
+IF k < N GOTO mylabel13
+GOTO mylabel12
+LABEL mylabel13 :
+myvar57 := #4 * k
+myvar53 := &heap + myvar57
+myvar61 := #4 * j
+myvar54 := &heap + myvar61
+IF *myvar53 < *myvar54 GOTO mylabel11
+GOTO mylabel12
+LABEL mylabel11 :
+myvar69 := #4 * k
+myvar66 := &heap + myvar69
+tem1 := *myvar66
+j := k
+LABEL mylabel12 :
+myvar78 := #4 * i
+myvar74 := &heap + myvar78
+IF *myvar74 > tem1 GOTO mylabel14
+GOTO mylabel15
+LABEL mylabel14 :
+stop := #0
+myvar86 := #4 * j
+myvar83 := &heap + myvar86
+myvar91 := #4 * i
+myvar88 := &heap + myvar91
+*myvar83 := *myvar88
+myvar98 := #4 * i
+myvar95 := &heap + myvar98
+*myvar95 := tem1
+i := j
+LABEL mylabel15 :
+LABEL mylabel10 :
+GOTO mylabel6
+LABEL mylabel8 :
+myvar105 := start - #1
+start := myvar105
+GOTO mylabel3
+LABEL mylabel5 :
+start := #10
+i := #0
+LABEL mylabel16 :
+IF i < N GOTO mylabel17
+GOTO mylabel18
+LABEL mylabel17 :
+myvar117 := #4 * i
+myvar114 := &result + myvar117
+myvar119 := &heap + #0
+*myvar114 := *myvar119
+myvar126 := i + #1
+i := myvar126
+myvar129 := &heap + #0
+myvar135 := start - #1
+myvar138 := #4 * myvar135
+myvar133 := &heap + myvar138
+*myvar129 := *myvar133
+stop := #0
+myvar145 := start - #1
+start := myvar145
+t := #0
+LABEL mylabel19 :
+IF stop == #0 GOTO mylabel20
+GOTO mylabel21
+LABEL mylabel20 :
+stop := #1
+myvar156 := t * #2
+myvar155 := myvar156 + #1
+j := myvar155
+myvar162 := t * #2
+myvar161 := myvar162 + #2
+k := myvar161
+IF j < start GOTO mylabel22
+GOTO mylabel23
+LABEL mylabel22 :
+myvar172 := #4 * j
+myvar169 := &heap + myvar172
+tem1 := *myvar169
+IF k < start GOTO mylabel26
+GOTO mylabel25
+LABEL mylabel26 :
+myvar181 := #4 * k
+myvar177 := &heap + myvar181
+myvar185 := #4 * j
+myvar178 := &heap + myvar185
+IF *myvar177 < *myvar178 GOTO mylabel24
+GOTO mylabel25
+LABEL mylabel24 :
+myvar193 := #4 * k
+myvar190 := &heap + myvar193
+tem1 := *myvar190
+j := k
+LABEL mylabel25 :
+myvar202 := #4 * t
+myvar198 := &heap + myvar202
+IF *myvar198 > tem1 GOTO mylabel27
+GOTO mylabel28
+LABEL mylabel27 :
+stop := #0
+myvar210 := #4 * j
+myvar207 := &heap + myvar210
+myvar215 := #4 * t
+myvar212 := &heap + myvar215
+*myvar207 := *myvar212
+myvar222 := #4 * t
+myvar219 := &heap + myvar222
+*myvar219 := tem1
+t := j
+LABEL mylabel28 :
+LABEL mylabel23 :
+GOTO mylabel19
+LABEL mylabel21 :
+GOTO mylabel16
+LABEL mylabel18 :
+i := #0
+LABEL mylabel29 :
+IF i < N GOTO mylabel30
+GOTO mylabel31
+LABEL mylabel30 :
+myvar235 := #4 * i
+myvar232 := &result + myvar235
+WRITE *myvar232
+myvar239 := i + #1
+i := myvar239
+GOTO mylabel29
+LABEL mylabel31 :
+RETURN #0

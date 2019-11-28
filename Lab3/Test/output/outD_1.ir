@@ -1,0 +1,145 @@
+FUNCTION process :
+PARAM x
+y := #3
+y := #36
+myvar27 := x * #321
+myvar25 := myvar27 * #2
+myvar26 := x * y
+myvar23 := myvar25 + myvar26
+myvar21 := myvar23 - x
+myvar22 := y * x
+myvar19 := myvar21 + myvar22
+myvar20 := y * y
+myvar17 := myvar19 + myvar20
+myvar15 := myvar17 + x
+myvar13 := myvar15 + x
+myvar11 := myvar13 - #23
+myvar10 := myvar11 + #45
+y := myvar10
+myvar49 := y / #3
+myvar47 := myvar49 + #336
+myvar55 := x * #12
+myvar48 := myvar55 / #4
+myvar45 := myvar47 - myvar48
+myvar43 := myvar45 - #60
+myvar61 := y / #12
+myvar44 := myvar61 * #24
+myvar41 := myvar43 + myvar44
+myvar39 := myvar41 + #36
+myvar38 := myvar39 + #1
+y := myvar38
+myvar71 := x + #24
+myvar70 := myvar71 + #1
+y := myvar70
+RETURN y
+FUNCTION main :
+a := #13
+b := #20
+c := #15
+myvar104 := a + b
+myvar103 := myvar104 + c
+d := myvar103
+myvar109 := a * b
+myvar110 := c / #2
+myvar108 := myvar109 + myvar110
+e := myvar108
+myvar116 := a - b
+myvar115 := myvar116 - c
+f := myvar115
+g1 := #42
+i := #0
+myvar128 := a + b
+myvar126 := myvar128 + c
+myvar124 := myvar126 + #2000
+myvar123 := myvar124 - f
+f := myvar123
+LABEL mylabel0 :
+myvar134 := a + b
+IF myvar134 < f GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar147 := i * #12
+myvar144 := g1 + myvar147
+myvar142 := myvar144 + #4
+myvar140 := myvar142 + #5
+myvar139 := myvar140 + #2
+g1 := myvar139
+ARG f
+myvar158 := CALL process
+myvar159 := #2 * a
+myvar156 := myvar158 + myvar159
+myvar154 := myvar156 - f
+myvar155 := c * d
+myvar153 := myvar154 + myvar155
+g := myvar153
+myvar166 := i + i
+i := myvar166
+myvar170 := i + i
+i := myvar170
+myvar174 := i + i
+i := myvar174
+myvar178 := i + i
+i := myvar178
+myvar182 := i + i
+i := myvar182
+myvar186 := i + #3
+h := myvar186
+myvar190 := h - #1
+h := myvar190
+myvar194 := h + #3
+h := myvar194
+myvar198 := h - #6
+h := myvar198
+ARG a
+myvar203 := CALL process
+myvar209 := a + #3
+myvar207 := myvar209 - #2
+myvar206 := myvar207 - #1
+ARG myvar206
+myvar204 := CALL process
+IF myvar203 == myvar204 GOTO mylabel3
+GOTO mylabel4
+LABEL mylabel3 :
+myvar215 := f - #2
+myvar214 := myvar215 + #1
+f := myvar214
+LABEL mylabel4 :
+myvar221 := a + #2
+myvar220 := myvar221 + #1
+a := myvar220
+GOTO mylabel0
+LABEL mylabel2 :
+myvar226 := g1 - #12
+h := myvar226
+LABEL mylabel5 :
+IF h < g1 GOTO mylabel6
+GOTO mylabel7
+LABEL mylabel6 :
+myvar234 := #58 + a
+f := myvar234
+myvar242 := g1 - #12
+g := myvar242
+myvar246 := h + #1
+h := myvar246
+g := g1
+myvar252 := a + b
+i := myvar252
+myvar256 := a + b
+c := myvar256
+GOTO mylabel5
+LABEL mylabel7 :
+WRITE f
+myvar261 := a + b
+a := myvar261
+myvar265 := a + b
+b := myvar265
+myvar269 := a + b
+c := myvar269
+myvar273 := a + b
+f := myvar273
+myvar277 := a + b
+g := myvar277
+myvar281 := c + f
+myvar280 := myvar281 + g
+WRITE myvar280
+RETURN #0

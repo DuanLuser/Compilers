@@ -1,0 +1,222 @@
+FUNCTION display :
+PARAM chess
+PARAM number
+PARAM sum
+DEC board 400
+i1 := #0
+j1 := #0
+tem := #1
+IF *number == #1 GOTO mylabel0
+GOTO mylabel1
+LABEL mylabel0 :
+LABEL mylabel2 :
+IF i1 < sum GOTO mylabel3
+GOTO mylabel4
+LABEL mylabel3 :
+j1 := #0
+tem := #1
+LABEL mylabel5 :
+IF j1 < sum GOTO mylabel6
+GOTO mylabel7
+LABEL mylabel6 :
+myvar19 := #4 * i1
+myvar16 := chess + myvar19
+IF j1 == *myvar16 GOTO mylabel8
+GOTO mylabel9
+LABEL mylabel8 :
+myvar26 := #40 * i1
+myvar22 := &board + myvar26
+myvar28 := #4 * j1
+myvar21 := myvar22 + myvar28
+*myvar21 := #1
+myvar33 := tem * #10
+myvar32 := myvar33 + #1
+tem := myvar32
+GOTO mylabel10
+LABEL mylabel9 :
+myvar42 := #40 * i1
+myvar38 := &board + myvar42
+myvar44 := #4 * j1
+myvar37 := myvar38 + myvar44
+*myvar37 := #0
+myvar48 := tem * #10
+tem := myvar48
+LABEL mylabel10 :
+myvar52 := j1 + #1
+j1 := myvar52
+GOTO mylabel5
+LABEL mylabel7 :
+WRITE tem
+myvar57 := i1 + #1
+i1 := myvar57
+GOTO mylabel2
+LABEL mylabel4 :
+LABEL mylabel1 :
+RETURN #0
+FUNCTION dfs :
+PARAM p
+PARAM r
+PARAM ld
+PARAM rd
+PARAM current
+PARAM target
+PARAM c
+j := #0
+DEC nld 40
+DEC nrd 40
+IF current == target GOTO mylabel11
+GOTO mylabel12
+LABEL mylabel11 :
+myvar67 := *c + #1
+*c := myvar67
+ARG target
+ARG c
+ARG p
+myvar75 := CALL display
+RETURN #0
+LABEL mylabel12 :
+LABEL mylabel13 :
+IF j < target GOTO mylabel14
+GOTO mylabel15
+LABEL mylabel14 :
+myvar83 := #4 * j
+myvar79 := r + myvar83
+IF *myvar79 == #1 GOTO mylabel19
+GOTO mylabel17
+LABEL mylabel19 :
+myvar89 := #4 * j
+myvar85 := ld + myvar89
+IF *myvar85 == #1 GOTO mylabel18
+GOTO mylabel17
+LABEL mylabel18 :
+myvar95 := #4 * j
+myvar91 := rd + myvar95
+IF *myvar91 == #1 GOTO mylabel16
+GOTO mylabel17
+LABEL mylabel16 :
+myvar100 := #4 * current
+myvar97 := p + myvar100
+*myvar97 := j
+myvar106 := #4 * j
+myvar103 := r + myvar106
+*myvar103 := #0
+k := #0
+LABEL mylabel20 :
+myvar112 := target - #1
+IF k < myvar112 GOTO mylabel21
+GOTO mylabel22
+LABEL mylabel21 :
+myvar118 := #4 * k
+myvar115 := &nld + myvar118
+myvar122 := k + #1
+myvar125 := #4 * myvar122
+myvar120 := ld + myvar125
+*myvar115 := *myvar120
+myvar129 := k + #1
+k := myvar129
+GOTO mylabel20
+LABEL mylabel22 :
+myvar134 := target - #1
+myvar137 := #4 * myvar134
+myvar132 := &nld + myvar137
+*myvar132 := #1
+IF j != #0 GOTO mylabel23
+GOTO mylabel24
+LABEL mylabel23 :
+myvar145 := j - #1
+myvar148 := #4 * myvar145
+myvar143 := &nld + myvar148
+*myvar143 := #0
+LABEL mylabel24 :
+myvar153 := target - #1
+k := myvar153
+LABEL mylabel25 :
+IF k > #0 GOTO mylabel26
+GOTO mylabel27
+LABEL mylabel26 :
+myvar161 := #4 * k
+myvar158 := &nrd + myvar161
+myvar165 := k - #1
+myvar168 := #4 * myvar165
+myvar163 := rd + myvar168
+*myvar158 := *myvar163
+myvar172 := k - #1
+k := myvar172
+GOTO mylabel25
+LABEL mylabel27 :
+myvar175 := &nrd + #0
+*myvar175 := #1
+myvar182 := target - #1
+IF j != myvar182 GOTO mylabel28
+GOTO mylabel29
+LABEL mylabel28 :
+myvar187 := j + #1
+myvar190 := #4 * myvar187
+myvar185 := &nrd + myvar190
+*myvar185 := #0
+LABEL mylabel29 :
+myvar200 := current + #1
+ARG c
+ARG target
+ARG myvar200
+ARG &nrd
+ARG &nld
+ARG r
+ARG p
+myvar205 := CALL dfs
+myvar209 := #4 * j
+myvar206 := r + myvar209
+*myvar206 := #1
+LABEL mylabel17 :
+myvar213 := j + #1
+j := myvar213
+GOTO mylabel13
+LABEL mylabel15 :
+RETURN #0
+FUNCTION main :
+DEC place 40
+DEC count 4
+DEC row 40
+DEC ldiag 40
+DEC rdiag 40
+i := #0
+READ myvar219
+N := myvar219
+IF N == #0 GOTO mylabel30
+GOTO mylabel32
+LABEL mylabel32 :
+IF N > #10 GOTO mylabel30
+GOTO mylabel31
+LABEL mylabel30 :
+RETURN #0
+LABEL mylabel31 :
+LABEL mylabel33 :
+IF i < N GOTO mylabel34
+GOTO mylabel35
+LABEL mylabel34 :
+myvar230 := #4 * i
+myvar227 := &row + myvar230
+*myvar227 := #1
+myvar237 := #4 * i
+myvar234 := &ldiag + myvar237
+*myvar234 := #1
+myvar244 := #4 * i
+myvar241 := &rdiag + myvar244
+*myvar241 := #1
+myvar249 := i + #1
+i := myvar249
+GOTO mylabel33
+LABEL mylabel35 :
+myvar252 := &count + #0
+*myvar252 := #0
+ARG &count
+ARG N
+ARG #0
+ARG &rdiag
+ARG &ldiag
+ARG &row
+ARG &place
+myvar270 := CALL dfs
+myvar271 := &count + #0
+WRITE *myvar271
+RETURN #0

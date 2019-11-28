@@ -1,0 +1,116 @@
+FUNCTION mod :
+PARAM number2
+PARAM m2
+myvar3 := number2 / m2
+myvar2 := myvar3 * m2
+myvar0 := number2 - myvar2
+result := myvar0
+result2 := result
+RETURN result
+FUNCTION power :
+PARAM base1
+PARAM p1
+myvar10 := #1 + p1
+myvar9 := myvar10 - p1
+ret1 := myvar9
+LABEL mylabel0 :
+myvar22 := ret1 - ret1
+myvar20 := myvar22 + #90
+myvar18 := myvar20 - #89
+myvar16 := myvar18 + #1
+myvar15 := myvar16 - #2
+IF p1 > myvar15 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar27 := ret1 * base1
+ret1 := myvar27
+myvar36 := #2 * #1
+myvar34 := myvar36 * p1
+myvar35 := #1 * p1
+myvar32 := myvar34 - myvar35
+myvar31 := myvar32 - #1
+p1 := myvar31
+GOTO mylabel0
+LABEL mylabel2 :
+RETURN ret1
+FUNCTION getNumDigits :
+PARAM number3
+ret3 := #0
+IF number3 < #0 GOTO mylabel3
+GOTO mylabel4
+LABEL mylabel3 :
+myvar46 := #0 - #1
+RETURN myvar46
+LABEL mylabel4 :
+LABEL mylabel5 :
+IF number3 > #0 GOTO mylabel6
+GOTO mylabel7
+LABEL mylabel6 :
+myvar51 := number3 / #10
+number3 := myvar51
+myvar55 := ret3 + #2
+ret3 := myvar55
+myvar59 := ret3 + #2
+ret3 := myvar59
+myvar63 := ret3 - #3
+ret3 := myvar63
+GOTO mylabel5
+LABEL mylabel7 :
+RETURN ret3
+FUNCTION isNarcissistic :
+PARAM number4
+myvar69 := #1 + number4
+myvar68 := myvar69 - #1
+ARG myvar68
+myvar67 := CALL getNumDigits
+numDigits4 := myvar67
+sum4 := #0
+n4 := number4
+LABEL mylabel8 :
+IF n4 > #0 GOTO mylabel9
+GOTO mylabel10
+LABEL mylabel9 :
+ARG #10
+ARG n4
+myvar78 := CALL mod
+s4 := myvar78
+myvar83 := n4 - s4
+myvar82 := myvar83 / #10
+n4 := myvar82
+ARG numDigits4
+ARG s4
+myvar90 := CALL power
+myvar88 := sum4 + myvar90
+sum4 := myvar88
+GOTO mylabel8
+LABEL mylabel10 :
+IF sum4 == number4 GOTO mylabel11
+GOTO mylabel12
+LABEL mylabel11 :
+RETURN #1
+GOTO mylabel13
+LABEL mylabel12 :
+RETURN #0
+LABEL mylabel13 :
+FUNCTION main :
+count := #0
+i := #300
+LABEL mylabel14 :
+IF i < #500 GOTO mylabel15
+GOTO mylabel16
+LABEL mylabel15 :
+ARG i
+myvar101 := CALL isNarcissistic
+IF myvar101 == #1 GOTO mylabel17
+GOTO mylabel18
+LABEL mylabel17 :
+WRITE i
+myvar106 := count + #1
+count := myvar106
+LABEL mylabel18 :
+myvar110 := i + #1
+i := myvar110
+GOTO mylabel14
+LABEL mylabel16 :
+WRITE count
+RETURN count

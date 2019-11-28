@@ -1,0 +1,72 @@
+FUNCTION main :
+DEC map 400
+DEC t 40
+i := #0
+j := #0
+LABEL mylabel0 :
+IF i < #10 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+j := #0
+LABEL mylabel3 :
+IF j < #10 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+myvar13 := #40 * i
+myvar9 := &map + myvar13
+myvar15 := #4 * j
+myvar8 := myvar9 + myvar15
+myvar16 := i + j
+*myvar8 := myvar16
+myvar21 := j + #1
+j := myvar21
+GOTO mylabel3
+LABEL mylabel5 :
+myvar25 := i + #1
+i := myvar25
+GOTO mylabel0
+LABEL mylabel2 :
+i := #0
+LABEL mylabel6 :
+IF i < #10 GOTO mylabel7
+GOTO mylabel8
+LABEL mylabel7 :
+j := #0
+myvar37 := #4 * i
+myvar34 := &t + myvar37
+*myvar34 := #0
+LABEL mylabel9 :
+IF j < #10 GOTO mylabel10
+GOTO mylabel11
+LABEL mylabel10 :
+myvar46 := #4 * i
+myvar43 := &t + myvar46
+myvar53 := #4 * i
+myvar49 := &t + myvar53
+myvar59 := #40 * i
+myvar55 := &map + myvar59
+myvar61 := #4 * j
+myvar50 := myvar55 + myvar61
+myvar48 := *myvar49 + *myvar50
+*myvar43 := myvar48
+myvar66 := j + #1
+j := myvar66
+GOTO mylabel9
+LABEL mylabel11 :
+myvar70 := i + #1
+i := myvar70
+GOTO mylabel6
+LABEL mylabel8 :
+i := #0
+LABEL mylabel12 :
+IF i < #10 GOTO mylabel13
+GOTO mylabel14
+LABEL mylabel13 :
+myvar80 := #4 * i
+myvar77 := &t + myvar80
+WRITE *myvar77
+myvar84 := i + #1
+i := myvar84
+GOTO mylabel12
+LABEL mylabel14 :
+RETURN #0

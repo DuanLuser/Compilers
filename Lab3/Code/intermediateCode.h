@@ -5,16 +5,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include"symboltable.h"
 
 typedef struct Operand_* Operand;
 
 typedef struct Operand_
 {
-	enum { VAR, CONST, ADDR, TEMPVAR, LABEL, FUNC } kind;
+	enum { VAR, CONST, ADDR, TEMPVAR, LABEL, FUNC,//5
+			AddrVarNo,//表示需要加上*，变量标号
+			PointVar,//表示需要加上&
+			AddrParam,//表示地址的传参
+			AddrVarName//表示需要加上*，变量名
+	} kind;
 	union {
 		int no;
 		char *val;//func, const, var
-		Operand addr;
+		//Operand addr; //?
 	} u;
 } Operand_;
 
@@ -24,12 +30,14 @@ typedef struct InterCode
 		   CLABEL, FUNCTION, GOTO, RETURN, ARG, PARAM, READ, WRITE,
 		   ASSIGN, CALL,
 		   ADD, SUB, MUL, DIV, //11, 12, 13, 14
-		   IFGOTO
+		   IFGOTO,
+		   getaddr, getpointer,//16, 17,represent result=&op1, result=*op1
+		   pointto//18, represent *result=op1
 	} kind;
 	union {
 		struct { Operand op; int size; } dec;
 		struct { Operand op; } single;
-		struct { Operand right, left; } assign;
+		struct { Operand left, right; } assign;
 		struct { Operand result, op1, op2; } binop;
 		struct { 
 				 Operand op1,op2,label; 
@@ -70,6 +78,12 @@ void insertReadfunc(Operand place);
 void insertCall(Operand place, char* funcName);
 void insertWritefunc(Operand op);
 void insertFuncArgs(Operand arg);
+
+void insertGetAddrOrPointer(Operand result, Operand op1, int kind);
+void printInterCodes(FILE *fw);
+char* trans(Operand op);
+
+int sizeofString(char *str);
 
 #endif
 

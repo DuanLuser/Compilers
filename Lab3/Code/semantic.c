@@ -4,9 +4,31 @@
 
 #define Length 40
 
+
+char* int2char(int num)
+{
+	char* buffer = malloc(sizeof(char) * 40);
+	sprintf(buffer,"%d",num);
+	return buffer;
+}
+
+int Floor(float x)
+{
+	if(x>0)
+		return (int)x;
+	else
+	{
+		if(x-(int)x<-0.000001)
+			return (int)x-1;
+		else
+			return (int)x;
+	}
+}
+
 //FieldList structure中的structure需要提前分配空间
 bool FuncRedefine;//函数重定义
 int tempCount, labelCount;
+bool fromVarList;//函数参数列表中的数组不用DEC
 
 Type newType()
 {
@@ -17,6 +39,9 @@ Type newType()
 VarObject* newVar(bool lv)
 {
 	VarObject* var = (VarObject*)malloc(sizeof(VarObject));
+	//lab3 数组
+	var->isParam = false;
+
 	var->type = newType();
 	var->lvalue = lv;
 	return var;
@@ -90,6 +115,9 @@ bool typeEqual(Type t1, Type t2)
 VarObject* newVarObject(int kind)
 {
 	VarObject* newone = (VarObject*)malloc(sizeof(VarObject));
+	//lab3 数组
+	newone->isParam = false;
+
 	newone->name = NULL;   //没名字
 	newone->type = (Type)malloc(sizeof(Type_));
 	switch (kind)
@@ -121,6 +149,7 @@ void traverseTree(TreeNode* root)
 {
 	tempCount=0; 
 	labelCount=0;
+	fromVarList=false;
 	initSymbolTable();
 	Program(root);
 }
@@ -188,7 +217,11 @@ void ExtDef(TreeNode* p) //not Done-> the last "CompSt(q->next->next);"
 			while(arg)
 			{
 				if(arg->val)
+				{
 					insertFuncParam(arg->val->name);
+					//printf("%s\n", arg->val->name);
+					arg->val->isParam = true;
+				}
 				arg=arg->next;
 			}			
 		}
@@ -238,6 +271,9 @@ Type Specifier(TreeNode* p)//Done
 	}
 	else if (q && q->nodetype == TYPE_StructSpecifier)
 	{
+		//lab3
+		printf("Cannnot translate: Code contains variables or parameters of structure type.\n");
+		exit(0);
 		return StructSpecifier(q);
 	}
 }
@@ -285,6 +321,9 @@ Type StructSpecifier(TreeNode* p)//Done
 		type->u.structure = st;
 
 		VarObject* val = (VarObject*)malloc(sizeof(VarObject));
+		//lab3 数组
+		val->isParam = false;
+
 		val->name = type->u.structure->name;//赋值结构体名称；则判断结构体是否相同时--名字同
 		val->type = type;
 		if(vexist == NULL && sexist == NULL)
@@ -326,6 +365,9 @@ void VarDec(TreeNode* p, Type specifier, vector *list, Type Array, FieldList st)
 		//首先check 该变量在同一深度是否已经存在，错误3
 		vector* vardec = (vector*)malloc(sizeof(vector));
 		vardec->val = (VarObject*)malloc(sizeof(VarObject));
+		//lab3 数组
+		vardec->val->isParam = false;
+
 		vardec->val->name = q->value;
 		vardec->next = vardec->last = NULL;
 		if (Array == NULL)//not array
@@ -334,7 +376,7 @@ void VarDec(TreeNode* p, Type specifier, vector *list, Type Array, FieldList st)
 		{
 			vardec->val->type = Array;
 			//lab3  数组
-			if(st==NULL)//不是结构体内部的数组
+			if(st==NULL&&fromVarList==false)//不是结构体内部的数组,且不是函数参数列表中的数组
 				insertFields(q->value,computeSize(Array));
 		}
 		//插入 list
@@ -432,8 +474,11 @@ void FunDec(TreeNode* p, FuncObject *fundec)//Done
 	{
 		//说明出现多个参数，将加入符号表的功能要求在VarList中实现
 		int index = 1; //!
+		//lab3
+		fromVarList=true;
 		VarList(funcVars, fundec, index);
 		//需要将函数形参列表插入哈希表？  需要！
+		fromVarList=false;
 	}
 }
 
@@ -653,9 +698,18 @@ void Dec(TreeNode* p, Type specifier, vector *declist, FieldList st)
 					printf("Error type %d at Line %d: Type mismatched for assignment.\n", 5, q->next->line);
 					return;
 				}
+
+				/*数组相关，确认是否需要添加这一项*/
+				if(right->kind == ADDR)
+				{
+					Operand tmpl = newTemp(tempCount++);
+					tmpl->kind = AddrVarNo;
+					tmpl->u = right->u;
+					right = tmpl;
+				}
 				insertAssignLID(declist->last->val->name, right);
 			}
-		}
+		}		
 	}
 }
 
@@ -694,9 +748,29 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 				printf("Error type %d at Line %d: Type mismatched for assignment.\n", 5, q->next->line);
 				return newVar(false);
 			}
+
+			/*数组相关，确认是否需要添加这一项*/
+			if(leftExp->kind == ADDR)
+			{
+				Operand tmpl = newTemp(tempCount++);
+				tmpl->kind = AddrVarNo;
+				tmpl->u = leftExp->u;
+				leftExp = tmpl;
+			}
+			if(rightExp->kind == ADDR)
+			{
+				Operand tmpl = newTemp(tempCount++);
+				tmpl->kind = AddrVarNo;
+				tmpl->u = rightExp->u;
+				rightExp = tmpl;
+			}
+
 			insertAssignLOP(leftExp, rightExp);
+
+
 			if(place!=NULL)
 				insertAssignLOP(place, rightExp);
+			//printf("name = s, kind = %d\n",  place->kind);
 			return exp1;//需要补充赋值过程
 		}break;
 		case TOKEN_AND:
@@ -719,6 +793,7 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 			if(place!=NULL)
 				insertAssignLOP(place, constant1);	//code2		
 			insertLabel(label2);//label2
+			return exp;//!
 		}break;
 		case TOKEN_PLUS:
 		case TOKEN_MINUS:
@@ -735,6 +810,22 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 				printf("Error type %d at Line %d: Type mismatched for operands.\n", 7, q->next->line);
 				return newVar(false);
 			}
+
+			/*数组相关，确认是否需要添加这一项*/
+			if(t1->kind == ADDR)
+			{
+				Operand tmpl = newTemp(tempCount++);
+				tmpl->kind = AddrVarNo;
+				tmpl->u = t1->u;
+				t1 = tmpl;
+			}
+			if(t2->kind == ADDR)
+			{
+				Operand tmpl = newTemp(tempCount++);
+				tmpl->kind = AddrVarNo;
+				tmpl->u = t2->u;
+				t2 = tmpl;
+			}
 			int kind=-1;
 			if(q->next->nodetype==TOKEN_PLUS)
 				kind=11;//ADD
@@ -744,9 +835,44 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 				kind=13;//MUL
 			else if(q->next->nodetype==TOKEN_DIV)
 				kind=14;//DIV
+			
 			if(place!=NULL&&kind!=-1)
-				insertBinop(place, t1, t2, kind);
-
+			{
+				if(t1->kind==CONST&&t2->kind==CONST)
+				{	
+					char *outcome=(char*)malloc(40);
+					place->kind=CONST;
+					if(exp->type->u.basic==0)
+					{
+						int out=atoi(t1->u.val);
+						switch(kind)
+						{
+							case 11:out=out+atoi(t2->u.val);break;
+							case 12:out=out-atoi(t2->u.val);break;
+							case 13:out=out*atoi(t2->u.val);break;
+							case 14:out=Floor(out/atof(t2->u.val));break;
+							default: break;
+						}
+						outcome=int2char(out);
+					}
+					else if(exp->type->u.basic==1)
+					{
+						float out=atof(t1->u.val);
+						switch(kind)
+						{
+							case 11:out=out+atof(t2->u.val);break;
+							case 12:out=out-atof(t2->u.val);break;
+							case 13:out=out*atof(t2->u.val);break;
+							case 14:out=out/atof(t2->u.val);break;
+							default: break;
+						}
+						sprintf(outcome,"lf",out);
+					}
+					place->u.val=outcome;
+				}
+				else
+					insertBinop(place, t1, t2, kind);
+			}
 			VarObject* tmp = newVarObject(0);
 			tmp->type->u.basic = exp->type->u.basic;//0或者1
 			//tmp->u.value计算
@@ -754,13 +880,16 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 			return tmp;
 		}break;
 		case TOKEN_LB: {
+			Operand leftExp = newTemp(tempCount++);
+			Operand rightExp = newTemp(tempCount++);
+			exp = exp = Exp(q, leftExp);
 			if (exp->type->kind != ARRAY)//判断exp是否为数组型
 			{
 				printf("Error type %d at Line %d: \"%s\" is not an array.\n", 10, q->next->line, exp->name);
 				return exp;//不为数组，直接返回该变量
 			}
 			if (r == NULL)	return NULL;
-			exp1 = Exp(r,place);//to be ..
+			exp1 = Exp(r,rightExp);
 			if (exp1->type->kind != BASIC || exp1->type->u.basic != 0)//判断exp1是否为int型
 			{
 				printf("Error type %d at Line %d: The number in %s \"[]\" is not an integer.\n", 12, q->next->line, exp->name);//报错12
@@ -771,6 +900,71 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 			tmp->name = exp->name;//名字为多维数组的名字 ?; 用不用判断数组越界？
 			tmp->type = exp->type->u.array.elem;
 			tmp->lvalue = true;
+			
+			
+			/*数组相关，确认是否需要添加这一项*/
+			if(rightExp->kind == ADDR)
+			{
+				Operand tmpl = newTemp(tempCount++);
+				tmpl->kind = AddrVarNo;
+				tmpl->u = rightExp->u;
+				rightExp = tmpl;
+			}
+			int sizelen = 4;
+			if(exp->type->kind!=BASIC) 
+				sizelen = computeSize(exp->type->u.array.elem);
+			Operand constop = (Operand)malloc(sizeof(Operand_));
+			constop->kind=1;//CONST
+			//constop->u.val= itoa(sizelen);
+			constop->u.val = int2char(sizelen);
+			char* nameofplace = trans(place);
+			//printf("place kind %d, no=%d", place->kind, place->u.no);
+			//place->u.val=nameofplace;
+			place->kind = ADDR;
+			Operand newright = NULL;
+
+			//优化：简化两个实数的情况
+			if(rightExp->kind == 1)//CONST
+			{
+				newright = newTemp(tempCount);
+				newright->kind = 1;
+				newright->u.val = int2char(sizelen * atoi(rightExp->u.val));
+			}
+			else
+			//原来
+			{
+				newright = newTemp(tempCount++);
+				insertBinop(newright, constop, rightExp, 13);//MUL
+			}
+			
+			//优化：如果是0就直接不加了
+			
+			if(leftExp->kind==ADDR || leftExp->kind == AddrParam)//表示前面已经是地址
+			{
+				if(newright->kind == 1 && atoi(newright->u.val) == 0)
+				{
+					//printf("%d\n",leftExp->kind);
+					place->u = leftExp->u;
+					place->kind=AddrVarName;//直接获取变量名
+					
+				}
+				else//补充上place = leftExp + sizelen*exp1.val;
+				{
+					insertBinop(place, leftExp, newright, 11);//ADD
+				}
+			}
+			else
+			{
+				//补充上place=&leftExp + sizelen*exp1.val
+				Operand tmpvar = newTemp(tempCount++);
+				tmpvar->kind = PointVar;
+				tmpvar->u.val = leftExp->u.val;
+				//insertGetAddrOrPointer(tmpvar, leftExp, 17);//getaddr
+				place->kind = ADDR;
+				insertBinop(place, tmpvar, newright, 11);//ADD
+				//printf("And still %d\n\n\n", place->u.no);
+			}
+
 			return tmp;
 		}break;
 		case TOKEN_DOT: {//要求3.1, 不予考虑
@@ -894,7 +1088,7 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 						p=p->next; pf=pf->next;
 					}
 				}
-				if (nonequal)
+				if (nonequal && strcmp(fexist->name,"write")==1)
 				{
 					printf("Error type %d at Line %d: Function \"%s\" is not applicable for arguments.\n", 9, q->line, q->value);
 					//return newVar(false);  出错时还是返回原来函数的返回类型
@@ -902,6 +1096,8 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 				if(strcmp(fexist->name,"write")==0)
 				{
 					insertWritefunc(Arg_list->next->op);//arg[1]
+					//printf("%d\n", Arg_list->next->op->kind);
+					//assert(false);
 				}
 				else
 				{
@@ -910,9 +1106,14 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 					{
 						Operand arg=p->op;
 						if(arg!=NULL)
+						{
 							insertFuncArgs(arg);
+						}
+							
 						p=p->next;
 					}
+					if(place == NULL)
+						place = newTemp(tempCount++);
 					insertCall(place, fexist->name);
 				}
 			}
@@ -925,12 +1126,17 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 					//return newVar(false);  出错时还是返回原来函数的返回类型
 				}
 				//lab3
+				if(place == NULL)
+					place = newTemp(tempCount++);
 				if(strcmp(fexist->name,"read")==0)
 					insertReadfunc(place);
 				else
 					insertCall(place, fexist->name);
 			}
 			tmp = (VarObject*)malloc(sizeof(VarObject));
+			//lab3 数组
+			tmp->isParam = false;
+
 			//tmp->name=NULL;
 			tmp->type = fexist->rtype;
 			tmp->lvalue = false;
@@ -946,7 +1152,8 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 			}
 			place->kind=VAR;
 			place->u.val=q->value;		
-
+			if(vexist->isParam && vexist->type->kind != BASIC)
+				place->kind=AddrParam;
 			tmp = vexist;
 			tmp->lvalue = true;
 			return tmp;
@@ -985,6 +1192,27 @@ void Args(TreeNode* p, vector* args, int index, OperandList* Arg_list)
 		args->last = vitem;
 		
 		OperandList* Arg=(OperandList*)malloc(sizeof(OperandList));
+
+		/*数组相关，确认是否需要添加这一项*/
+			if(t1->kind == ADDR)
+			{
+				Operand tmpl = newTemp(tempCount++);
+				tmpl->kind = AddrVarNo;
+				tmpl->u = t1->u;
+				t1 = tmpl;
+			}
+			else if (t1->kind == AddrParam)
+			{
+				;
+			}
+			else if(arg->type->kind != BASIC)
+			{
+				Operand tmpl = newTemp(tempCount++);
+				tmpl->kind = PointVar;
+				tmpl->u = t1->u;
+				t1 = tmpl;
+			}
+
 		Arg->op=t1;
 		Arg->next=Arg_list->next;
 		Arg_list->next=Arg;
@@ -1012,6 +1240,23 @@ VarObject* translate_Cond(TreeNode* p, Operand labelTrue, Operand labelFalse)
 			VarObject* exp1=Exp(q,t1);
 			VarObject* exp2=Exp(s,t2);	
 			if(exp1==NULL||exp2==NULL) return NULL;
+
+			/*数组相关，确认是否需要添加这一项*/
+			if(t1->kind == ADDR)
+			{
+				Operand tmpl = newTemp(tempCount++);
+				tmpl->kind = AddrVarNo;
+				tmpl->u = t1->u;
+				t1 = tmpl;
+			}
+			if(t2->kind == ADDR)
+			{
+				Operand tmpl = newTemp(tempCount++);
+				tmpl->kind = AddrVarNo;
+				tmpl->u = t2->u;
+				t2 = tmpl;
+			}
+			
 			insertGotoLabelTrue(t1, t2, labelTrue, r->value);
 			insertGotoLabel(labelFalse);
 			if (exp1->type->kind != BASIC || exp2->type->kind != BASIC || exp1->type->u.basic != exp2->type->u.basic)
@@ -1083,6 +1328,16 @@ VarObject* translate_Cond(TreeNode* p, Operand labelTrue, Operand labelFalse)
 	else
 	{
 		Operand t1= newTemp(tempCount++);
+
+			/*数组相关，确认是否需要添加这一项*/
+		if(t1->kind == ADDR)
+		{
+			Operand tmpl = newTemp(tempCount++);
+			tmpl->kind = AddrVarNo;
+			tmpl->u = t1->u;
+			t1 = tmpl;
+		}
+			
 		VarObject* object=Exp(p,t1);
 		Operand constant=(Operand)malloc(sizeof(struct Operand_));
 		constant->kind=CONST;

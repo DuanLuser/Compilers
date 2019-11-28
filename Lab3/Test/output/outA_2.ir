@@ -1,0 +1,46 @@
+FUNCTION main :
+READ myvar1
+price := myvar1
+READ myvar3
+money := myvar3
+IF price > money GOTO mylabel0
+GOTO mylabel1
+LABEL mylabel0 :
+myvar7 := money * #2
+IF price > myvar7 GOTO mylabel2
+GOTO mylabel3
+LABEL mylabel2 :
+WRITE price
+GOTO mylabel4
+LABEL mylabel3 :
+myvar11 := money * #2
+WRITE myvar11
+LABEL mylabel4 :
+GOTO mylabel5
+LABEL mylabel1 :
+IF price == money GOTO mylabel6
+GOTO mylabel7
+LABEL mylabel6 :
+IF money > #100 GOTO mylabel8
+GOTO mylabel9
+LABEL mylabel8 :
+WRITE #100
+GOTO mylabel10
+LABEL mylabel9 :
+WRITE money
+LABEL mylabel10 :
+GOTO mylabel11
+LABEL mylabel7 :
+myvar20 := price * #2
+IF myvar20 < money GOTO mylabel12
+GOTO mylabel13
+LABEL mylabel12 :
+WRITE money
+GOTO mylabel14
+LABEL mylabel13 :
+myvar25 := price * #2
+WRITE myvar25
+LABEL mylabel14 :
+LABEL mylabel11 :
+LABEL mylabel5 :
+RETURN #0

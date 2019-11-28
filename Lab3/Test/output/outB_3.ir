@@ -1,0 +1,93 @@
+FUNCTION isPrime :
+PARAM number
+myvar0 := number / #4
+max := myvar0
+i := #2
+LABEL mylabel0 :
+IF i < max GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar8 := number / i
+myvar7 := myvar8 * i
+IF number == myvar7 GOTO mylabel3
+GOTO mylabel4
+LABEL mylabel3 :
+RETURN #0
+LABEL mylabel4 :
+myvar14 := i + #1
+i := myvar14
+GOTO mylabel0
+LABEL mylabel2 :
+RETURN #1
+FUNCTION isRever :
+PARAM num
+n := num
+DEC array 40
+bit := #0
+j := #0
+LABEL mylabel5 :
+IF n != #0 GOTO mylabel6
+GOTO mylabel7
+LABEL mylabel6 :
+myvar26 := #4 * bit
+myvar23 := &array + myvar26
+myvar31 := n / #10
+myvar30 := myvar31 * #10
+myvar28 := n - myvar30
+*myvar23 := myvar28
+myvar37 := n / #10
+n := myvar37
+myvar41 := bit + #1
+bit := myvar41
+GOTO mylabel5
+LABEL mylabel7 :
+myvar45 := bit - #1
+bit := myvar45
+LABEL mylabel8 :
+IF j != bit GOTO mylabel9
+GOTO mylabel10
+LABEL mylabel9 :
+myvar54 := #4 * j
+myvar50 := &array + myvar54
+myvar58 := #4 * bit
+myvar51 := &array + myvar58
+IF *myvar50 != *myvar51 GOTO mylabel11
+GOTO mylabel12
+LABEL mylabel11 :
+RETURN #0
+LABEL mylabel12 :
+myvar64 := j + #1
+j := myvar64
+myvar68 := bit - #1
+bit := myvar68
+GOTO mylabel8
+LABEL mylabel10 :
+RETURN #1
+FUNCTION main :
+N := #100
+M := #110
+ii := N
+LABEL mylabel13 :
+IF ii < M GOTO mylabel14
+GOTO mylabel15
+LABEL mylabel14 :
+ARG ii
+myvar77 := CALL isPrime
+IF myvar77 == #1 GOTO mylabel16
+GOTO mylabel17
+LABEL mylabel16 :
+WRITE ii
+LABEL mylabel17 :
+ARG ii
+myvar81 := CALL isRever
+IF myvar81 == #1 GOTO mylabel18
+GOTO mylabel19
+LABEL mylabel18 :
+myvar84 := #0 - ii
+WRITE myvar84
+LABEL mylabel19 :
+myvar87 := ii + #1
+ii := myvar87
+GOTO mylabel13
+LABEL mylabel15 :
+RETURN #0

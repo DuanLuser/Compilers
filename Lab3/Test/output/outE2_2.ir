@@ -1,0 +1,64 @@
+FUNCTION print :
+PARAM array
+ii := #0
+LABEL mylabel0 :
+IF ii < #4 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar6 := #4 * ii
+myvar3 := array + myvar6
+WRITE *myvar3
+myvar9 := ii + #1
+ii := myvar9
+GOTO mylabel0
+LABEL mylabel2 :
+RETURN #0
+FUNCTION product :
+PARAM a
+PARAM b
+result := #0
+i := #0
+LABEL mylabel3 :
+IF i < #4 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+myvar25 := #4 * i
+myvar21 := a + myvar25
+myvar28 := #4 * i
+myvar22 := b + myvar28
+myvar20 := *myvar21 * *myvar22
+myvar18 := result + myvar20
+result := myvar18
+myvar32 := i + #1
+i := myvar32
+GOTO mylabel3
+LABEL mylabel5 :
+RETURN result
+FUNCTION main :
+DEC p 16
+DEC pp 16
+j := #0
+LABEL mylabel6 :
+IF j < #4 GOTO mylabel7
+GOTO mylabel8
+LABEL mylabel7 :
+myvar42 := #4 * j
+myvar39 := &p + myvar42
+READ myvar44
+*myvar39 := myvar44
+myvar49 := #4 * j
+myvar46 := &pp + myvar49
+READ myvar51
+*myvar46 := myvar51
+myvar54 := j + #1
+j := myvar54
+GOTO mylabel6
+LABEL mylabel8 :
+j := #0
+ARG &p
+myvar61 := CALL print
+ARG &pp
+ARG &p
+myvar62 := CALL product
+WRITE myvar62
+RETURN #0

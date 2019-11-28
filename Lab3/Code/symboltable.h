@@ -16,6 +16,7 @@ typedef struct VarObject
 	char* name;
 	Type type; // variable-type (pointer-level 1)
 	bool lvalue;
+	bool isParam;
 } VarObject;
 
 typedef struct FuncObject

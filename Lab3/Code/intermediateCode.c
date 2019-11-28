@@ -1,4 +1,3 @@
-#include"symboltable.h"
 #include "intermediateCode.h"
 
 InterCodes *head=NULL, *tail=NULL;
@@ -64,6 +63,14 @@ Operand newTemp(int no)
 	temp->kind=TEMPVAR;
 	temp->u.no=no;
 	return temp;
+}
+
+int sizeofString(char *str)
+{
+	int len=0;
+	while(str[len]!='\0')
+		len++;
+	return len;
 }
 
 int computeSize(Type type)
@@ -237,6 +244,121 @@ void insertFuncArgs(Operand arg)
 	Code->code.u.single.op=arg;
 	insertInterCode(Code);
 }
+
+void insertGetAddrOrPointer(Operand result, Operand op1, int kind)
+{
+	InterCodes *Code = (InterCodes*)malloc(sizeof(InterCodes));
+	Code->prev=Code->next=NULL;
+	Code->code.kind=kind;//
+	Code->code.u.assign.left=result;
+	Code->code.u.assign.right=op1;
+	insertInterCode(Code);
+}
+
+char* trans(Operand op)
+{
+	switch (op->kind)
+	{
+		case 0:{return op->u.val;};break;
+		case 1:{int len=sizeofString(op->u.val);
+				char* result=malloc(len+2);
+				strcpy(result, "#");
+				strcat(result, op->u.val);
+				return result;};break;
+		case 2:break;//?
+		case 3:{char* result=malloc(30);
+				strcpy(result, "myvar");
+				char* buffer = malloc(sizeof(char) * 30);
+				sprintf(buffer,"%d",op->u.no);
+				strcat(result, buffer);
+				return result;};break;
+		case 4:{char* result=malloc(30);
+				strcpy(result, "mylabel");
+				char* buffer = malloc(sizeof(char) * 30);
+				sprintf(buffer,"%d",op->u.no);
+				strcat(result, buffer);
+				//printf("\n\n%s\n\n\n", result);
+				return result;};break;
+		case 5:{return op->u.val;};break;
+		case 6:{char* result=malloc(30);
+				strcpy(result, "*myvar");
+				char* buffer = malloc(sizeof(char) * 30);
+				sprintf(buffer,"%d",op->u.no);
+				strcat(result, buffer);
+				return result;};break;//AddrVarNo加上*
+		case 7:{char* result=malloc(30);
+				strcpy(result, "&");
+				strcat(result, op->u.val);
+				return result;};break;//加上&
+		case 8:{return op->u.val;};break;
+		case 9:{char* result=malloc(30);
+				strcpy(result, "*");
+				strcat(result, op->u.val);
+				return result;};break;//AddrVarName加上*
+	default:
+		break;
+	}
+}
+
+void printInterCodes(FILE *fw)
+{
+	InterCodes* tmp = head;
+	while(tmp != NULL)
+	{
+		//printf("\nline code\n");
+		InterCode code = tmp->code;
+		switch (code.kind)
+		{
+		case DEC:{fprintf(fw,"DEC %s %d\n", trans(code.u.dec.op), code.u.dec.size);};break;
+		case CLABEL:{fprintf(fw,"LABEL %s :\n", trans(code.u.single.op));};break;
+		case FUNCTION:{fprintf(fw,"FUNCTION %s :\n",trans(code.u.single.op));};break;
+		case GOTO:{fprintf(fw,"GOTO %s\n",trans(code.u.single.op));};break;
+		case RETURN:{fprintf(fw,"RETURN %s\n",trans(code.u.single.op));};break;
+		case ARG:{fprintf(fw,"ARG %s\n",trans(code.u.single.op));};break;
+		case PARAM:{fprintf(fw,"PARAM %s\n",trans(code.u.single.op));};break;
+		case READ:{fprintf(fw,"READ %s\n",trans(code.u.single.op));};break;
+		case WRITE:{fprintf(fw,"WRITE %s\n",trans(code.u.single.op));};break;
+		case ASSIGN:{if(code.u.assign.left == NULL || code.u.assign.right ==NULL)printf("now begin\n\n");
+			//printf("kind=%d, kind=%d\n", code.u.assign.left->kind, code.u.assign.right->kind);
+			fprintf(fw,"%s := %s\n",trans(code.u.assign.left), trans(code.u.assign.right));};break;
+		case CALL:{fprintf(fw,"%s := CALL %s\n",trans(code.u.assign.left), trans(code.u.assign.right));};break;
+		case ADD:{fprintf(fw,"%s := %s + %s\n",trans(code.u.binop.result),trans(code.u.binop.op1), trans(code.u.binop.op2));};break;
+		case SUB:{fprintf(fw,"%s := %s - %s\n",trans(code.u.binop.result),trans(code.u.binop.op1), trans(code.u.binop.op2));};break;
+		case MUL:{fprintf(fw,"%s := %s * %s\n",trans(code.u.binop.result),trans(code.u.binop.op1), trans(code.u.binop.op2));};break;
+		case DIV:{fprintf(fw,"%s := %s / %s\n",trans(code.u.binop.result),trans(code.u.binop.op1), trans(code.u.binop.op2));};break;
+		case IFGOTO:{fprintf(fw,"IF %s %s %s GOTO %s\n",trans(code.u.triop.op1),code.u.triop.relop,trans(code.u.triop.op2),trans(code.u.triop.label));};break;
+		case getaddr:{fprintf(fw,"%s = &%s\n", trans(code.u.assign.left), trans(code.u.assign.right));};break;
+		case getpointer:{fprintf(fw,"%s = *%s\n", trans(code.u.assign.left), trans(code.u.assign.right));};break;//16, 17,represent result=&op1, result=*op1
+		case pointto:{fprintf(fw,"*%s = %s\n", trans(code.u.assign.left), trans(code.u.assign.right));};break;
+		
+		default:
+			break;
+		}
+		tmp = tmp->next;
+	}
+}
+
+
+//优化  删除没用到的赋值语句，直接计算常数，
+
+void deleteRedundantAssign()
+{
+	InterCodes *p=head;
+	if(p->code.kind==ASSIGN)
+	{
+		//char* var=p->code.u.assign.left->
+	}
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

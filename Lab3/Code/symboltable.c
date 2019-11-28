@@ -48,6 +48,9 @@ void initHashTable()
 	//构建整型函数参数
 	vector* arg1 = (vector*)malloc(sizeof(vector));
 	arg1->val = (VarObject*)malloc(sizeof(VarObject));
+	//lab3 数组
+	arg1->val->isParam = false;
+
 	arg1->val->name = (char*)malloc(Length * sizeof(char));
 	strcpy(arg1->val->name, "arg1");//参数名
 	arg1->val->type=type;//参数类型

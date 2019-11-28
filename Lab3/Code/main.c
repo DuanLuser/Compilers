@@ -1,5 +1,6 @@
 #include "tree.h"
 #include "semantic.h"
+
 //extern FILE* yyin;
 
 extern int yylineno;
@@ -15,6 +16,12 @@ int main(int argc, char** argv)
 		perror(argv[1]);
 		return 1;
 	}
+	FILE* fw=fopen(argv[2],"w");
+	if(!fw)
+	{
+		perror(argv[2]);
+		return 1;
+	}
 	//initialize
 	ErrorLex=false;
 	ErrorSyn=false;
@@ -28,7 +35,9 @@ int main(int argc, char** argv)
 		computeDepth(root);
 		//initHashTable(); 
 		traverseTree(root);
+		printInterCodes(fw);
 	}
+	//printTree(root);
 	deleteTree(root);
 	return 0;
 }
