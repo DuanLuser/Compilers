@@ -1,0 +1,95 @@
+FUNCTION search :
+PARAM target
+DEC x 20
+i := #0
+LABEL mylabel0 :
+IF i < #5 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar6 := #4 * i
+myvar3 := &x + myvar6
+READ myvar8
+*myvar3 := myvar8
+myvar11 := i + #1
+i := myvar11
+GOTO mylabel0
+LABEL mylabel2 :
+left := #0
+right := #4
+LABEL mylabel3 :
+IF left <= right GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+myvar22 := left + right
+myvar21 := myvar22 / #2
+index := myvar21
+myvar30 := #4 * index
+myvar27 := &x + myvar30
+middle := *myvar27
+IF middle == target GOTO mylabel6
+GOTO mylabel7
+LABEL mylabel6 :
+RETURN index
+LABEL mylabel7 :
+myvar36 := #0
+myvar41 := #4 * left
+myvar38 := &x + myvar41
+IF middle > *myvar38 GOTO mylabel14
+GOTO mylabel12
+LABEL mylabel14 :
+myvar48 := #4 * left
+myvar45 := &x + myvar48
+IF target >= *myvar45 GOTO mylabel13
+GOTO mylabel12
+LABEL mylabel13 :
+IF target < middle GOTO mylabel11
+GOTO mylabel12
+LABEL mylabel11 :
+myvar36 := #1
+LABEL mylabel12 :
+IF myvar36 != #0 GOTO mylabel8
+GOTO mylabel10
+LABEL mylabel10 :
+myvar53 := #0
+myvar58 := #4 * left
+myvar55 := &x + myvar58
+IF middle < *myvar55 GOTO mylabel17
+GOTO mylabel16
+LABEL mylabel17 :
+myvar61 := #0
+myvar66 := #4 * left
+myvar63 := &x + myvar66
+IF target >= *myvar63 GOTO mylabel18
+GOTO mylabel20
+LABEL mylabel20 :
+IF target < middle GOTO mylabel18
+GOTO mylabel19
+LABEL mylabel18 :
+myvar61 := #1
+LABEL mylabel19 :
+IF myvar61 != #0 GOTO mylabel15
+GOTO mylabel16
+LABEL mylabel15 :
+myvar53 := #1
+LABEL mylabel16 :
+IF myvar53 != #0 GOTO mylabel8
+GOTO mylabel9
+LABEL mylabel8 :
+myvar72 := index - #1
+right := myvar72
+GOTO mylabel21
+LABEL mylabel9 :
+myvar76 := index + #1
+left := myvar76
+LABEL mylabel21 :
+GOTO mylabel3
+LABEL mylabel5 :
+myvar79 := #0 - #1
+RETURN myvar79
+FUNCTION main :
+READ myvar82
+n := myvar82
+ARG n
+myvar83 := CALL search
+WRITE myvar83
+RETURN #0

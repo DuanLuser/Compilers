@@ -17,21 +17,7 @@ void insertInterCode(InterCodes *code)
 	}
 }
 
-/*void deleteInterCode(InterCodes *Code)
-{
-	InterCodes *p=Code->prev;
-	while(p!=NULL)
-	{
-		int tempno=-1;
-		if(Code->kind==9&&Code->code.u.assign.right->kind==3)
-		{
-			
-		}
-	}
-	deleteCode(code);
-}*/
-
-void deleteInterCode(InterCodes *code)
+void deleteCode(InterCodes *code)
 {
 	if(code==NULL || head==NULL) return;
 	if(code==head && code==tail)
@@ -52,6 +38,61 @@ void deleteInterCode(InterCodes *code)
 	}
 	free(code);
 }
+
+void FindtoDelete(InterCodes *Code, int tempno)
+{
+	InterCodes *p=Code->prev;
+	while(p!=NULL)
+	{
+		if(p->code.kind==9)
+		{
+			Operand l1=	p->code.u.assign.left;
+			if(l1->kind==3&&l1->u.no==tempno)
+				deleteInterCode(p);// tempvar := op1
+		}
+		else if(p->code.kind>10&&p->code.kind<15)
+		{
+			Operand l1=	p->code.u.binop.result;
+			if(l1->kind==3&&l1->u.no==tempno)				
+				deleteInterCode(p);// tempvar := op1 [+-*/] op2 
+		}
+		p=p->prev;
+	}
+}
+
+void deleteInterCode(InterCodes *Code)
+{
+	InterCodes *p=NULL;
+	if(Code->code.kind==9)
+	{
+		Operand l=Code->code.u.assign.left;
+		Operand r=Code->code.u.assign.right;
+		if(l->kind==0&&r->kind==3)//var := tempvar
+		{
+			int tempno=r->u.no;
+			FindtoDelete(Code, tempno);
+		}
+	}
+	else if((Code->code.kind>10&&Code->code.kind<15))
+	{
+		Operand result=Code->code.u.binop.result;
+		Operand o1=Code->code.u.binop.op1;
+		Operand o2=Code->code.u.binop.op2;
+		if(result->kind!=3) return;
+		if(o1->kind==3)
+		{
+			int tempno=o1->u.no;
+			FindtoDelete(Code, tempno);	
+		}	
+		if(o2->kind==3)
+		{
+			int tempno=o2->u.no;
+			FindtoDelete(Code, tempno);	
+		}	
+	}
+	deleteCode(Code);
+}
+
 
 void deleteInterCodes()
 {
@@ -432,6 +473,8 @@ void deleteRedundantAssign()
 		}
 		else if(flag==1)
 			p=p->next;
+		else if(flag==2)
+			p=head;
 	}
 }
 

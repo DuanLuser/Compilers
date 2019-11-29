@@ -1,0 +1,5 @@
+FUNCTION main :
+y := #10
+myvar2 := #10
+x := myvar2
+WRITE y

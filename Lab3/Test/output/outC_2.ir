@@ -24,8 +24,7 @@ GOTO mylabel2
 LABEL mylabel1 :
 myvar27 := ret1 * base1
 ret1 := myvar27
-myvar36 := #2 * #1
-myvar34 := myvar36 * p1
+myvar34 := #2 * p1
 myvar35 := #1 * p1
 myvar32 := myvar34 - myvar35
 myvar31 := myvar32 - #1

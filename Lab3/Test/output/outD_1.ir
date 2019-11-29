@@ -1,31 +1,5 @@
 FUNCTION process :
 PARAM x
-y := #36
-myvar27 := x * #321
-myvar25 := myvar27 * #2
-myvar26 := x * y
-myvar23 := myvar25 + myvar26
-myvar21 := myvar23 - x
-myvar22 := y * x
-myvar19 := myvar21 + myvar22
-myvar20 := y * y
-myvar17 := myvar19 + myvar20
-myvar15 := myvar17 + x
-myvar13 := myvar15 + x
-myvar11 := myvar13 - #23
-myvar10 := myvar11 + #45
-y := myvar10
-myvar49 := y / #3
-myvar47 := myvar49 + #336
-myvar55 := x * #12
-myvar48 := myvar55 / #4
-myvar45 := myvar47 - myvar48
-myvar43 := myvar45 - #60
-myvar61 := y / #12
-myvar44 := myvar61 * #24
-myvar41 := myvar43 + myvar44
-myvar39 := myvar41 + #36
-myvar38 := myvar39 + #1
 myvar71 := x + #24
 myvar70 := myvar71 + #1
 y := myvar70
@@ -115,7 +89,6 @@ GOTO mylabel7
 LABEL mylabel6 :
 myvar234 := #58 + a
 f := myvar234
-myvar242 := g1 - #12
 myvar246 := h + #1
 h := myvar246
 g := g1

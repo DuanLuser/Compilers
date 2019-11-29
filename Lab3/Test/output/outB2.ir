@@ -1,0 +1,171 @@
+FUNCTION countSort :
+DEC x 20
+DEC count 40
+DEC sorted 20
+i := #0
+LABEL mylabel0 :
+IF i < #10 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar7 := #4 * i
+myvar4 := &count + myvar7
+*myvar4 := #0
+myvar12 := i + #1
+i := myvar12
+GOTO mylabel0
+LABEL mylabel2 :
+i := #0
+LABEL mylabel3 :
+IF i < #5 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+myvar22 := #4 * i
+myvar19 := &x + myvar22
+READ myvar24
+*myvar19 := myvar24
+myvar31 := #4 * i
+myvar28 := &x + myvar31
+myvar34 := #4 * *myvar28
+myvar26 := &count + myvar34
+myvar43 := #4 * i
+myvar40 := &x + myvar43
+myvar46 := #4 * *myvar40
+myvar37 := &count + myvar46
+myvar36 := *myvar37 + #1
+*myvar26 := myvar36
+myvar51 := i + #1
+i := myvar51
+GOTO mylabel3
+LABEL mylabel5 :
+i := #1
+LABEL mylabel6 :
+IF i < #10 GOTO mylabel7
+GOTO mylabel8
+LABEL mylabel7 :
+myvar61 := #4 * i
+myvar58 := &count + myvar61
+myvar68 := #4 * i
+myvar64 := &count + myvar68
+myvar71 := i - #1
+myvar74 := #4 * myvar71
+myvar65 := &count + myvar74
+myvar63 := *myvar64 + *myvar65
+*myvar58 := myvar63
+myvar80 := i + #1
+i := myvar80
+GOTO mylabel6
+LABEL mylabel8 :
+i := #0
+LABEL mylabel9 :
+IF i < #5 GOTO mylabel10
+GOTO mylabel11
+LABEL mylabel10 :
+myvar96 := #4 * i
+myvar93 := &x + myvar96
+myvar99 := #4 * *myvar93
+myvar90 := &count + myvar99
+myvar89 := *myvar90 - #1
+myvar102 := #4 * myvar89
+myvar87 := &sorted + myvar102
+myvar107 := #4 * i
+myvar104 := &x + myvar107
+*myvar87 := *myvar104
+myvar116 := #4 * i
+myvar113 := &x + myvar116
+myvar119 := #4 * *myvar113
+myvar111 := &count + myvar119
+myvar128 := #4 * i
+myvar125 := &x + myvar128
+myvar131 := #4 * *myvar125
+myvar122 := &count + myvar131
+myvar121 := *myvar122 - #1
+*myvar111 := myvar121
+myvar136 := i + #1
+i := myvar136
+GOTO mylabel9
+LABEL mylabel11 :
+i := #0
+LABEL mylabel12 :
+IF i < #5 GOTO mylabel13
+GOTO mylabel14
+LABEL mylabel13 :
+myvar146 := #4 * i
+myvar143 := &sorted + myvar146
+WRITE *myvar143
+myvar150 := i + #1
+i := myvar150
+GOTO mylabel12
+LABEL mylabel14 :
+RETURN #0
+FUNCTION bubbleSort :
+DEC a 20
+b := #0
+LABEL mylabel15 :
+IF b < #5 GOTO mylabel16
+GOTO mylabel17
+LABEL mylabel16 :
+myvar161 := #4 * b
+myvar158 := &a + myvar161
+READ myvar163
+*myvar158 := myvar163
+myvar166 := b + #1
+b := myvar166
+GOTO mylabel15
+LABEL mylabel17 :
+c := #1
+LABEL mylabel18 :
+IF c == #1 GOTO mylabel19
+GOTO mylabel20
+LABEL mylabel19 :
+c := #0
+b := #1
+LABEL mylabel21 :
+IF b < #5 GOTO mylabel22
+GOTO mylabel23
+LABEL mylabel22 :
+myvar183 := #4 * b
+myvar179 := &a + myvar183
+myvar186 := b - #1
+myvar189 := #4 * myvar186
+myvar180 := &a + myvar189
+IF *myvar179 < *myvar180 GOTO mylabel24
+GOTO mylabel25
+LABEL mylabel24 :
+c := #1
+myvar198 := b - #1
+myvar201 := #4 * myvar198
+myvar196 := &a + myvar201
+tem := *myvar196
+myvar206 := b - #1
+myvar209 := #4 * myvar206
+myvar204 := &a + myvar209
+myvar214 := #4 * b
+myvar211 := &a + myvar214
+*myvar204 := *myvar211
+myvar221 := #4 * b
+myvar218 := &a + myvar221
+*myvar218 := tem
+LABEL mylabel25 :
+myvar226 := b + #1
+b := myvar226
+GOTO mylabel21
+LABEL mylabel23 :
+GOTO mylabel18
+LABEL mylabel20 :
+b := #0
+LABEL mylabel26 :
+IF b < #5 GOTO mylabel27
+GOTO mylabel28
+LABEL mylabel27 :
+myvar236 := #4 * b
+myvar233 := &a + myvar236
+WRITE *myvar233
+myvar240 := b + #1
+b := myvar240
+GOTO mylabel26
+LABEL mylabel28 :
+RETURN #0
+FUNCTION main :
+myvar244 := CALL countSort
+myvar245 := CALL bubbleSort
+RETURN #0

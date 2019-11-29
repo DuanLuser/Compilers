@@ -1,0 +1,37 @@
+FUNCTION main :
+READ myvar1
+x := myvar1
+READ myvar3
+n := myvar3
+myvar6 := n / #2
+myvar5 := myvar6 * #2
+IF n == myvar5 GOTO mylabel0
+GOTO mylabel1
+LABEL mylabel0 :
+result := #1
+GOTO mylabel2
+LABEL mylabel1 :
+result := x
+LABEL mylabel2 :
+myvar15 := n / #2
+n := myvar15
+LABEL mylabel3 :
+IF n > #0 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+myvar21 := x * x
+x := myvar21
+myvar26 := n / #2
+myvar25 := myvar26 * #2
+IF n != myvar25 GOTO mylabel6
+GOTO mylabel7
+LABEL mylabel6 :
+myvar31 := result * x
+result := myvar31
+LABEL mylabel7 :
+myvar35 := n / #2
+n := myvar35
+GOTO mylabel3
+LABEL mylabel5 :
+WRITE result
+RETURN #0

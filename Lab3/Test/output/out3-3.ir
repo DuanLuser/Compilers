@@ -1,0 +1,43 @@
+FUNCTION add :
+PARAM tmp
+myvar1 := tmp + #0
+myvar2 := tmp + #4
+myvar0 := *myvar1 + *myvar2
+RETURN myvar0
+FUNCTION main :
+DEC op 8
+DEC r 8
+i := #0
+j := #0
+LABEL mylabel0 :
+IF i < #2 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+LABEL mylabel3 :
+IF j < #2 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+myvar18 := #4 * j
+myvar15 := &op + myvar18
+myvar20 := i + j
+*myvar15 := myvar20
+myvar25 := j + #1
+j := myvar25
+GOTO mylabel3
+LABEL mylabel5 :
+myvar29 := &r + #0
+myvar34 := #4 * i
+myvar28 := myvar29 + myvar34
+ARG &op
+myvar35 := CALL add
+*myvar28 := myvar35
+myvar40 := &r + #0
+myvar45 := #4 * i
+myvar39 := myvar40 + myvar45
+WRITE *myvar39
+myvar48 := i + #1
+i := myvar48
+j := #0
+GOTO mylabel0
+LABEL mylabel2 :
+RETURN #0

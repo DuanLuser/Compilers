@@ -1,0 +1,115 @@
+FUNCTION qsort :
+PARAM array
+PARAM l
+PARAM r
+myvar3 := #4 * l
+myvar0 := array + myvar3
+x := *myvar0
+a := l
+b := r
+IF a < b GOTO mylabel0
+GOTO mylabel1
+LABEL mylabel0 :
+LABEL mylabel2 :
+IF a < b GOTO mylabel3
+GOTO mylabel4
+LABEL mylabel3 :
+LABEL mylabel5 :
+IF a < b GOTO mylabel8
+GOTO mylabel7
+LABEL mylabel8 :
+myvar17 := #4 * b
+myvar13 := array + myvar17
+IF *myvar13 > x GOTO mylabel6
+GOTO mylabel7
+LABEL mylabel6 :
+myvar20 := b - #1
+b := myvar20
+GOTO mylabel5
+LABEL mylabel7 :
+IF a < b GOTO mylabel9
+GOTO mylabel10
+LABEL mylabel9 :
+myvar28 := #4 * a
+myvar25 := array + myvar28
+myvar32 := #4 * b
+myvar29 := array + myvar32
+*myvar25 := *myvar29
+myvar36 := a + #1
+a := myvar36
+LABEL mylabel10 :
+LABEL mylabel11 :
+IF a < b GOTO mylabel14
+GOTO mylabel13
+LABEL mylabel14 :
+myvar45 := #4 * a
+myvar41 := array + myvar45
+IF *myvar41 < x GOTO mylabel12
+GOTO mylabel13
+LABEL mylabel12 :
+myvar48 := a + #1
+a := myvar48
+GOTO mylabel11
+LABEL mylabel13 :
+IF a < b GOTO mylabel15
+GOTO mylabel16
+LABEL mylabel15 :
+myvar56 := #4 * b
+myvar53 := array + myvar56
+myvar60 := #4 * a
+myvar57 := array + myvar60
+*myvar53 := *myvar57
+myvar64 := b - #1
+b := myvar64
+LABEL mylabel16 :
+GOTO mylabel2
+LABEL mylabel4 :
+myvar70 := #4 * a
+myvar67 := array + myvar70
+*myvar67 := x
+myvar75 := a - #1
+ARG myvar75
+ARG l
+ARG array
+myvar78 := CALL qsort
+myvar80 := a + #1
+ARG r
+ARG myvar80
+ARG array
+myvar84 := CALL qsort
+LABEL mylabel1 :
+RETURN #0
+FUNCTION main :
+DEC number 40
+N := #10
+i := #0
+LABEL mylabel17 :
+IF i < N GOTO mylabel18
+GOTO mylabel19
+LABEL mylabel18 :
+myvar93 := #4 * i
+myvar90 := &number + myvar93
+READ myvar95
+*myvar90 := myvar95
+myvar98 := i + #1
+i := myvar98
+GOTO mylabel17
+LABEL mylabel19 :
+myvar104 := N - #1
+ARG myvar104
+ARG #0
+ARG &number
+myvar107 := CALL qsort
+i := #0
+LABEL mylabel20 :
+IF i < N GOTO mylabel21
+GOTO mylabel22
+LABEL mylabel21 :
+myvar115 := #4 * i
+myvar112 := &number + myvar115
+WRITE *myvar112
+myvar119 := i + #1
+i := myvar119
+GOTO mylabel20
+LABEL mylabel22 :
+RETURN #0

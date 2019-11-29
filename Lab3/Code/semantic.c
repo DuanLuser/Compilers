@@ -149,6 +149,7 @@ void traverseTree(TreeNode* root)
 	fromVarList=false;
 	initSymbolTable();
 	Program(root);
+	deleteRedundantAssign();
 }
 
 void ErrorGenerator(char* str)
@@ -935,20 +936,19 @@ VarObject* Exp(TreeNode* p, Operand place)//!
 			}
 			
 			//优化：如果是0就直接不加了
-			
 			if(leftExp->kind==ADDR || leftExp->kind == AddrParam)//表示前面已经是地址
 			{
-				if(newright->kind == 1 && atoi(newright->u.val) == 0)
+				/*if(newright->kind == 1 && atoi(newright->u.val) == 0)
 				{
-					//printf("%d\n",leftExp->kind);
 					place->u = leftExp->u;
-					place->kind=AddrVarName;//直接获取变量名
+					//place->kind=AddrVarName;//直接获取变量名
 					
 				}
 				else//补充上place = leftExp + sizelen*exp1.val;
 				{
 					insertBinop(place, leftExp, newright, 11);//ADD
-				}
+				}*/
+				insertBinop(place, leftExp, newright, 11);//ADD
 			}
 			else
 			{

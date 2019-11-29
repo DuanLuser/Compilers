@@ -3,5 +3,4 @@ int main()
 	int x=5;
 	int y;
 	x=y=10;
-	write(y);
 }

@@ -1,0 +1,201 @@
+FUNCTION main :
+DEC place 32
+DEC row 32
+DEC ldiag 32
+DEC rdiag 32
+count := #0
+i := #0
+READ myvar5
+n := myvar5
+LABEL mylabel0 :
+IF i < n GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar11 := #4 * i
+myvar8 := &place + myvar11
+myvar13 := #0 - #1
+*myvar8 := myvar13
+myvar17 := i + #1
+i := myvar17
+GOTO mylabel0
+LABEL mylabel2 :
+i := #0
+cont := #1
+LABEL mylabel3 :
+IF cont == #1 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+IF i == n GOTO mylabel6
+GOTO mylabel7
+LABEL mylabel6 :
+valid := #1
+j := #0
+LABEL mylabel8 :
+IF j < n GOTO mylabel9
+GOTO mylabel10
+LABEL mylabel9 :
+myvar37 := #4 * j
+myvar34 := &row + myvar37
+*myvar34 := #1
+myvar44 := #4 * j
+myvar41 := &ldiag + myvar44
+*myvar41 := #1
+myvar51 := #4 * j
+myvar48 := &rdiag + myvar51
+*myvar48 := #1
+myvar56 := j + #1
+j := myvar56
+GOTO mylabel8
+LABEL mylabel10 :
+j := #0
+LABEL mylabel11 :
+IF j < n GOTO mylabel12
+GOTO mylabel13
+LABEL mylabel12 :
+myvar69 := #4 * j
+myvar66 := &place + myvar69
+myvar72 := #4 * *myvar66
+myvar63 := &row + myvar72
+IF *myvar63 != #1 GOTO mylabel14
+GOTO mylabel17
+LABEL mylabel17 :
+myvar81 := #4 * j
+myvar78 := &place + myvar81
+myvar84 := #4 * *myvar78
+myvar75 := &ldiag + myvar84
+IF *myvar75 != #1 GOTO mylabel14
+GOTO mylabel16
+LABEL mylabel16 :
+myvar93 := #4 * j
+myvar90 := &place + myvar93
+myvar96 := #4 * *myvar90
+myvar87 := &rdiag + myvar96
+IF *myvar87 != #1 GOTO mylabel14
+GOTO mylabel15
+LABEL mylabel14 :
+valid := #0
+j := n
+GOTO mylabel18
+LABEL mylabel15 :
+myvar108 := #4 * j
+myvar105 := &place + myvar108
+myvar111 := #4 * *myvar105
+myvar103 := &row + myvar111
+*myvar103 := #0
+k := #0
+LABEL mylabel19 :
+myvar118 := n - #1
+IF k < myvar118 GOTO mylabel20
+GOTO mylabel21
+LABEL mylabel20 :
+myvar124 := #4 * k
+myvar121 := &ldiag + myvar124
+myvar128 := k + #1
+myvar131 := #4 * myvar128
+myvar126 := &ldiag + myvar131
+*myvar121 := *myvar126
+myvar136 := k + #1
+k := myvar136
+GOTO mylabel19
+LABEL mylabel21 :
+myvar141 := n - #1
+myvar144 := #4 * myvar141
+myvar139 := &ldiag + myvar144
+*myvar139 := #1
+myvar152 := #4 * j
+myvar148 := &place + myvar152
+IF *myvar148 != #0 GOTO mylabel22
+GOTO mylabel23
+LABEL mylabel22 :
+myvar162 := #4 * j
+myvar158 := &place + myvar162
+myvar157 := *myvar158 - #1
+myvar165 := #4 * myvar157
+myvar155 := &ldiag + myvar165
+*myvar155 := #0
+LABEL mylabel23 :
+myvar170 := n - #1
+k := myvar170
+LABEL mylabel24 :
+IF k > #0 GOTO mylabel25
+GOTO mylabel26
+LABEL mylabel25 :
+myvar178 := #4 * k
+myvar175 := &rdiag + myvar178
+myvar182 := k - #1
+myvar185 := #4 * myvar182
+myvar180 := &rdiag + myvar185
+*myvar175 := *myvar180
+myvar190 := k - #1
+k := myvar190
+GOTO mylabel24
+LABEL mylabel26 :
+myvar193 := &rdiag + #0
+*myvar193 := #1
+myvar203 := #4 * j
+myvar199 := &place + myvar203
+myvar200 := n - #1
+IF *myvar199 != myvar200 GOTO mylabel27
+GOTO mylabel28
+LABEL mylabel27 :
+myvar215 := #4 * j
+myvar211 := &place + myvar215
+myvar210 := *myvar211 + #1
+myvar218 := #4 * myvar210
+myvar208 := &rdiag + myvar218
+*myvar208 := #0
+LABEL mylabel28 :
+myvar223 := j + #1
+j := myvar223
+LABEL mylabel18 :
+GOTO mylabel11
+LABEL mylabel13 :
+IF valid == #1 GOTO mylabel29
+GOTO mylabel30
+LABEL mylabel29 :
+myvar229 := count + #1
+count := myvar229
+LABEL mylabel30 :
+myvar233 := i - #1
+i := myvar233
+GOTO mylabel31
+LABEL mylabel7 :
+LABEL mylabel32 :
+IF i >= #0 GOTO mylabel35
+GOTO mylabel34
+LABEL mylabel35 :
+myvar242 := #4 * i
+myvar238 := &place + myvar242
+myvar239 := n - #1
+IF *myvar238 >= myvar239 GOTO mylabel33
+GOTO mylabel34
+LABEL mylabel33 :
+myvar250 := #4 * i
+myvar247 := &place + myvar250
+myvar252 := #0 - #1
+*myvar247 := myvar252
+myvar256 := i - #1
+i := myvar256
+GOTO mylabel32
+LABEL mylabel34 :
+myvar260 := #0 - #1
+IF i == myvar260 GOTO mylabel36
+GOTO mylabel37
+LABEL mylabel36 :
+cont := #0
+GOTO mylabel38
+LABEL mylabel37 :
+myvar267 := #4 * i
+myvar264 := &place + myvar267
+myvar274 := #4 * i
+myvar270 := &place + myvar274
+myvar269 := *myvar270 + #1
+*myvar264 := myvar269
+myvar279 := i + #1
+i := myvar279
+LABEL mylabel38 :
+LABEL mylabel31 :
+GOTO mylabel3
+LABEL mylabel5 :
+WRITE count
+RETURN #0

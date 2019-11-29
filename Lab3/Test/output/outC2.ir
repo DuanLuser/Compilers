@@ -1,0 +1,131 @@
+FUNCTION trap :
+lh := #0
+lIndex := #0
+i := #0
+count := #0
+thisPool := #0
+n := #12
+rh := #0
+DEC height 48
+LABEL mylabel0 :
+IF i < n GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+myvar12 := #4 * i
+myvar9 := &height + myvar12
+READ myvar14
+*myvar9 := myvar14
+myvar17 := i + #1
+i := myvar17
+GOTO mylabel0
+LABEL mylabel2 :
+i := #0
+LABEL mylabel3 :
+IF i < n GOTO mylabel6
+GOTO mylabel5
+LABEL mylabel6 :
+myvar28 := #4 * i
+myvar24 := &height + myvar28
+IF *myvar24 == #0 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+myvar32 := i + #1
+i := myvar32
+GOTO mylabel3
+LABEL mylabel5 :
+IF i >= n GOTO mylabel7
+GOTO mylabel8
+LABEL mylabel7 :
+RETURN #0
+LABEL mylabel8 :
+myvar42 := #4 * i
+myvar39 := &height + myvar42
+lh := *myvar39
+lIndex := i
+thisPool := #0
+myvar50 := i + #1
+i := myvar50
+LABEL mylabel9 :
+IF i < n GOTO mylabel10
+GOTO mylabel11
+LABEL mylabel10 :
+myvar59 := #4 * i
+myvar55 := &height + myvar59
+IF *myvar55 < lh GOTO mylabel12
+GOTO mylabel13
+LABEL mylabel12 :
+myvar70 := #4 * i
+myvar67 := &height + myvar70
+myvar65 := lh - *myvar67
+myvar63 := thisPool + myvar65
+thisPool := myvar63
+GOTO mylabel14
+LABEL mylabel13 :
+myvar74 := count + thisPool
+count := myvar74
+myvar81 := #4 * i
+myvar78 := &height + myvar81
+lh := *myvar78
+lIndex := i
+thisPool := #0
+LABEL mylabel14 :
+myvar89 := i + #1
+i := myvar89
+GOTO mylabel9
+LABEL mylabel11 :
+thisPool := #0
+rh := #0
+myvar97 := n - #1
+i := myvar97
+LABEL mylabel15 :
+IF i > lIndex GOTO mylabel18
+GOTO mylabel17
+LABEL mylabel18 :
+myvar106 := #4 * i
+myvar102 := &height + myvar106
+IF *myvar102 == #0 GOTO mylabel16
+GOTO mylabel17
+LABEL mylabel16 :
+myvar110 := i - #1
+i := myvar110
+GOTO mylabel15
+LABEL mylabel17 :
+myvar117 := #4 * i
+myvar114 := &height + myvar117
+rh := *myvar114
+myvar121 := i - #1
+i := myvar121
+LABEL mylabel19 :
+IF i > lIndex GOTO mylabel20
+GOTO mylabel21
+LABEL mylabel20 :
+myvar130 := #4 * i
+myvar126 := &height + myvar130
+IF *myvar126 < rh GOTO mylabel22
+GOTO mylabel23
+LABEL mylabel22 :
+myvar141 := #4 * i
+myvar138 := &height + myvar141
+myvar136 := rh - *myvar138
+myvar134 := thisPool + myvar136
+thisPool := myvar134
+GOTO mylabel24
+LABEL mylabel23 :
+myvar145 := count + thisPool
+count := myvar145
+myvar152 := #4 * i
+myvar149 := &height + myvar152
+rh := *myvar149
+thisPool := #0
+LABEL mylabel24 :
+myvar158 := i - #1
+i := myvar158
+GOTO mylabel19
+LABEL mylabel21 :
+myvar161 := count + thisPool
+RETURN myvar161
+FUNCTION main :
+myvar164 := CALL trap
+result := myvar164
+WRITE result
+RETURN #0

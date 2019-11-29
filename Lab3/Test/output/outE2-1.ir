@@ -1,0 +1,100 @@
+FUNCTION main :
+DEC dis 600
+d1 := #10
+d2 := #5
+d3 := #3
+i := #0
+j := #0
+k := #0
+sum := #0
+LABEL mylabel0 :
+IF i < d1 GOTO mylabel1
+GOTO mylabel2
+LABEL mylabel1 :
+j := #0
+LABEL mylabel3 :
+IF j < d2 GOTO mylabel4
+GOTO mylabel5
+LABEL mylabel4 :
+k := #0
+LABEL mylabel6 :
+IF k < d3 GOTO mylabel7
+GOTO mylabel8
+LABEL mylabel7 :
+myvar24 := #60 * i
+myvar20 := &dis + myvar24
+myvar26 := #12 * j
+myvar18 := myvar20 + myvar26
+myvar27 := #4 * k
+myvar17 := myvar18 + myvar27
+myvar31 := i * d1
+myvar32 := j * d2
+myvar29 := myvar31 + myvar32
+myvar38 := k + #1
+myvar30 := d3 / myvar38
+myvar28 := myvar29 + myvar30
+*myvar17 := myvar28
+myvar43 := k + #1
+k := myvar43
+GOTO mylabel6
+LABEL mylabel8 :
+myvar47 := j + #1
+j := myvar47
+GOTO mylabel3
+LABEL mylabel5 :
+myvar51 := i + #1
+i := myvar51
+GOTO mylabel0
+LABEL mylabel2 :
+i := #0
+j := #0
+k := #0
+LABEL mylabel9 :
+IF i < d1 GOTO mylabel10
+GOTO mylabel11
+LABEL mylabel10 :
+j := #0
+LABEL mylabel12 :
+IF j < d2 GOTO mylabel13
+GOTO mylabel14
+LABEL mylabel13 :
+k := #0
+LABEL mylabel15 :
+IF k < d3 GOTO mylabel16
+GOTO mylabel17
+LABEL mylabel16 :
+myvar78 := #60 * i
+myvar74 := &dis + myvar78
+myvar80 := #12 * j
+myvar72 := myvar74 + myvar80
+myvar81 := #4 * k
+myvar70 := myvar72 + myvar81
+myvar84 := &dis + #0
+myvar82 := myvar84 + #0
+myvar71 := myvar82 + #0
+IF *myvar70 > *myvar71 GOTO mylabel18
+GOTO mylabel19
+LABEL mylabel18 :
+myvar101 := #60 * i
+myvar97 := &dis + myvar101
+myvar103 := #12 * j
+myvar95 := myvar97 + myvar103
+myvar104 := #4 * k
+myvar94 := myvar95 + myvar104
+myvar92 := sum + *myvar94
+sum := myvar92
+LABEL mylabel19 :
+myvar107 := k + #1
+k := myvar107
+GOTO mylabel15
+LABEL mylabel17 :
+myvar111 := j + #1
+j := myvar111
+GOTO mylabel12
+LABEL mylabel14 :
+myvar115 := i + #1
+i := myvar115
+GOTO mylabel9
+LABEL mylabel11 :
+WRITE sum
+RETURN #0

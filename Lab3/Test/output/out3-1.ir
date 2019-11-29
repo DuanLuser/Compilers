@@ -1,0 +1,20 @@
+FUNCTION main :
+READ myvar1
+n := myvar1
+IF n > #0 GOTO mylabel0
+GOTO mylabel1
+LABEL mylabel0 :
+WRITE n
+GOTO mylabel2
+LABEL mylabel1 :
+IF n < #0 GOTO mylabel3
+GOTO mylabel4
+LABEL mylabel3 :
+myvar7 := #0 - #1
+WRITE myvar7
+GOTO mylabel5
+LABEL mylabel4 :
+WRITE #0
+LABEL mylabel5 :
+LABEL mylabel2 :
+RETURN #0
