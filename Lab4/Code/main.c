@@ -1,6 +1,6 @@
 #include "tree.h"
 #include "semantic.h"
-
+#include "assemblycode.h"
 //extern FILE* yyin;
 
 extern int yylineno;
@@ -35,7 +35,9 @@ int main(int argc, char** argv)
 		computeDepth(root);
 		//initHashTable(); 
 		traverseTree(root);
-		printInterCodes(fw);
+		//printInterCodes(fw);
+		initReg();
+		printAssemblyCodes(fw);
 	}
 	//printTree(root);
 	deleteTree(root);

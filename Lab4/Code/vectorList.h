@@ -1,7 +1,8 @@
 #ifndef VECTORLIST_H
 #define VECTORLIST_H
-#include "symboltable.h"
+
 #include <malloc.h>
+#include "symboltable.h"
 
 typedef struct vector
 {

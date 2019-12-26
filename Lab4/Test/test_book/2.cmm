@@ -1,0 +1,21 @@
+int fact(int n)
+{
+	int val = 1;
+	if(n == val)
+		return n;
+	else
+		return (n * fact(n - val));
+}
+
+int main()
+{
+	int x = 1;
+	int m, result;
+	m = read();
+	if(m > x)
+		result = fact(m);
+	else
+		result = 1;
+	write(result);
+	return 0;
+}

@@ -1,6 +1,15 @@
+int fact(int m)
+{
+	int val = 1;
+	if(m == val)
+		return m;
+	else
+		return (m * (m - val));
+}
+
 int main()
 {
-	int a = 0, b = 1, i = 0, n;
+	int a = 0, b = 1, i = 0, n, result;
 	n = read();
 	while (i < n)
 	{

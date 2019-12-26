@@ -1,8 +1,9 @@
 #ifndef SEMANTIC_H
 #define SEMANTIC_H
-//#include "vectorList.h"
+
 #include <stdlib.h>
 #include "symboltable.h"
+//#include "vectorList.h"
 #include "intermediateCode.h"
 
 extern void traverseTree(TreeNode* root);

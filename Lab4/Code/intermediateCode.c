@@ -394,8 +394,7 @@ void printInterCodes(FILE *fw)
 }
 
 
-//优化  删除没用到的赋值语句，直接计算常数，
-
+//优化  删除没用到的赋值语句，直接计算常数
 bool valEqual(char *name, Operand x)
 {
 	if((x->kind>1&&x->kind<5)||x->kind==6)
