@@ -888,8 +888,9 @@ void forGetaddr(FILE *fw, InterCode code)
 	if(right->type == 2 || right->type == 3)
 	{
 		//成功
+		char *regName=get_reg(code.u.assign.left, fw);
 		fprintf(fw,"\tmove %s, $fp", get_reg(code.u.assign.left, fw));
-		fprintf(fw,"\taddi %s, %d", get_reg(code.u.assign.left, fw), right->offset);
+		fprintf(fw,"\taddi %s, %s, %d", regName, regName, right->offset);
 	}
 	else
 	{
