@@ -307,7 +307,7 @@ char* get_reg(Operand op, FILE *fw)
 				printf("%s", str);
     			return str;			
 			}
-			if(tmpvar->type == 2 || tmpvar->type == 3)//在寄存器中
+			if(tmpvar->type == 1 || tmpvar->type == 3)//在寄存器中
 			{
 				fprintf(fw, "\tmove %s, $fp\n", RegName(regIndex));
 				fprintf(fw, "\taddi %s, %s, %d\n", RegName(regIndex), RegName(regIndex), tmpvar->offset);
